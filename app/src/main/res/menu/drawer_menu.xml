@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_favorites"
+        android:title="Favoritos"
+        />
+    <item
+        android:id="@+id/nav_settings"
+        android:title="Ajustes"
+        />
+</menu>
