@@ -1,16 +1,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/nav_animes"
-        android:title="Animes"
-        android:icon="@android:drawable/ic_menu_info_details" />
-
-    <item
         android:id="@+id/nav_fav"
-        android:title="Favoritos"
+        android:title="Animes"
         android:icon="@android:drawable/ic_menu_slideshow" />
 
     <item
         android:id="@+id/nav_friends"
-        android:title="Amigos"
+        android:title="Friends"
         android:icon="@android:drawable/ic_menu_agenda" />
+
+    <item
+        android:id="@+id/nav_feed"
+        android:title="Feed"
+        android:icon="@android:drawable/ic_menu_agenda" />
+
 </menu>

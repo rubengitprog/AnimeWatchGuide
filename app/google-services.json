@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "211216328590",
+    "project_id": "watchguidelist",
+    "storage_bucket": "watchguidelist.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:211216328590:android:eea6f83e4edbf9f006e6df",
+        "android_client_info": {
+          "package_name": "com.example.watchguide"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "211216328590-e0p1nl0fnf342982grkhrub21sl3r59o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.watchguide",
+            "certificate_hash": "6e58f76b3b20d8a984bddfddef58b011c85e2c47"
+          }
+        },
+        {
+          "client_id": "211216328590-6381bengjhve7n5d5qt370cr87856lu8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKk6sVghw40i3zODDKJw2gEKYHnwQql2M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "211216328590-6381bengjhve7n5d5qt370cr87856lu8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

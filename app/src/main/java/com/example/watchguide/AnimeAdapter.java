@@ -4,10 +4,10 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -17,24 +17,18 @@ import com.bumptech.glide.Glide;
 import com.example.watchguide.models.Anime;
 
 import java.util.List;
-
-import android.content.SharedPreferences;
-import android.widget.ImageButton;
-import android.widget.Toast;
+import java.util.Map;
 
 public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> {
 
     private List<Anime> animeList;
     private Context context;
-    private SharedPreferences prefs;
-    private SharedPreferences.Editor editor;
+    private FirestoreUserLibrary userLibrary;
 
-    public AnimeAdapter(List<Anime> animeList, Context context) {
+    public AnimeAdapter(List<Anime> animeList, Context context, FirestoreUserLibrary userLibrary) {
         this.animeList = animeList;
         this.context = context;
-
-        prefs = context.getSharedPreferences("favorites", Context.MODE_PRIVATE);
-        editor = prefs.edit();
+        this.userLibrary = userLibrary;
     }
 
     @NonNull
@@ -50,79 +44,47 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
         holder.title.setText(anime.title);
         holder.synopsis.setText(anime.synopsis);
 
-        Glide.with(context)
-                .load(anime.images.jpg.image_url)
-                .into(holder.image);
+        if (anime.images != null && anime.images.jpg != null) {
+            Glide.with(context).load(anime.images.jpg.image_url).into(holder.image);
+        }
 
-        // ⭐ Verificar si está en favoritos
-        boolean isFav = prefs.contains(anime.mal_id + "_title");
-        holder.favButton.setImageResource(
-                isFav ? android.R.drawable.btn_star_big_on : android.R.drawable.btn_star_big_off
-        );
+        // Estado actual desde cache
+        Map<Integer, LibraryEntry> cache = userLibrary.getCache();
+        LibraryEntry entry = cache.get(anime.mal_id);
 
+        boolean isFav = entry != null && entry.favorite;
+        boolean isWatched = entry != null && entry.watched;
+        int rating = (entry != null) ? entry.rating : 0;
 
-        // 🟢 Cargar "visto" y "rating" de SharedPreferences
-        boolean vistoGuardado = prefs.getBoolean("watched_" + anime.mal_id, false);
-        int ratingGuardado = prefs.getInt("rating_" + anime.mal_id, 0);
+        anime.rating = rating;
+        anime.visto = isWatched;
 
-        anime.visto = vistoGuardado;
-        anime.rating = ratingGuardado;
+        holder.favButton.setImageResource(isFav ? android.R.drawable.btn_star_big_on : android.R.drawable.btn_star_big_off);
+        holder.itemView.setBackgroundColor(isWatched ? context.getResources().getColor(android.R.color.darker_gray)
+                : context.getResources().getColor(android.R.color.white));
 
-        // aplicar fondo
-        holder.itemView.setBackgroundColor(
-                anime.visto ? context.getResources().getColor(android.R.color.darker_gray)
-                        : context.getResources().getColor(android.R.color.white)
-        );
-
+        // Toggle favorito
         holder.favButton.setOnClickListener(v -> {
-            String key = String.valueOf(anime.mal_id);
-            if (prefs.contains(key)) {
-                // Eliminar de favoritos
-                editor.remove(key);
-                editor.remove(key + "_title");
-                editor.remove(key + "_image");
-                editor.apply();
-                holder.favButton.setImageResource(android.R.drawable.btn_star_big_off);
-            } else {
-                // Guardar en favoritos
-                editor.putBoolean(key, true); // 🔹 Clave de referencia
-                editor.putString(key + "_title", anime.title);
-                editor.putString(key + "_image", anime.images.jpg.image_url);
-                editor.apply();
-                holder.favButton.setImageResource(android.R.drawable.btn_star_big_on);
-            }
+            userLibrary.setFavorite(anime, !isFav)
+                    .addOnSuccessListener(aVoid -> holder.favButton.setImageResource(!isFav ? android.R.drawable.btn_star_big_on : android.R.drawable.btn_star_big_off))
+                    .addOnFailureListener(e -> Toast.makeText(context, "Error al cambiar favorito", Toast.LENGTH_SHORT).show());
         });
 
-
-        // 🟢 Click en el item → abrir diálogo
+        // Click en item → RatingBar
         holder.itemView.setOnClickListener(v -> {
             View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_anime, null);
-
             RatingBar ratingBar = dialogView.findViewById(R.id.ratingBar);
+            ratingBar.setRating(rating);
 
-
-            // cargar valores guardados
-            ratingBar.setRating(anime.rating);
-
-
-            // listener para toggle de estrellas
-            ratingBar.setOnRatingBarChangeListener((rb, rating, fromUser) -> {
+            ratingBar.setOnRatingBarChangeListener((rb, r, fromUser) -> {
                 if (!fromUser) return;
-
-                int r = (int) rating;
                 if (r == anime.rating) {
-                    // si clic en la misma valoración → reset
                     anime.rating = 0;
                     anime.visto = false;
                     rb.setRating(0);
-
-                } else if (r == 0) {
-                    anime.rating = 0;
-                    anime.visto = false;
-
                 } else {
-                    anime.rating = r;
-                    anime.visto = true;
+                    anime.rating = (int) r;
+                    anime.visto = r > 0;
                 }
             });
 
@@ -130,30 +92,20 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
                     .setTitle(anime.title)
                     .setView(dialogView)
                     .setPositiveButton("Guardar", (dialog, which) -> {
-                        // Guardar en SharedPreferences
-                        editor.putBoolean("watched_" + anime.mal_id, anime.visto);
-                        editor.putInt("rating_" + anime.mal_id, anime.rating);
-                        editor.apply();
-
-                        // actualizar fondo
-                        holder.itemView.setBackgroundColor(
-                                anime.visto ? context.getResources().getColor(android.R.color.darker_gray)
-                                        : context.getResources().getColor(android.R.color.white)
-                        );
-
-                        Toast.makeText(context, "Guardado", Toast.LENGTH_SHORT).show();
+                        userLibrary.setRating(anime, anime.rating)
+                                .addOnSuccessListener(aVoid -> userLibrary.setWatched(anime, anime.visto)
+                                        .addOnSuccessListener(aVoid1 -> holder.itemView.setBackgroundColor(anime.visto ?
+                                                context.getResources().getColor(android.R.color.darker_gray) :
+                                                context.getResources().getColor(android.R.color.white))))
+                                .addOnFailureListener(e -> Toast.makeText(context, "Error al guardar rating", Toast.LENGTH_SHORT).show());
                     })
                     .setNegativeButton("Cancelar", null)
                     .show();
         });
     }
 
-
-
     @Override
-    public int getItemCount() {
-        return animeList.size();
-    }
+    public int getItemCount() { return animeList.size(); }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView title, synopsis;

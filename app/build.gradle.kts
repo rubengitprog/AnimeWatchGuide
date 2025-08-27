@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -37,12 +38,20 @@ dependencies {
     implementation(libs.glide)
     implementation (libs.material.v1100)
     implementation(libs.squareup.logging.interceptor)
-
+    implementation(libs.firebase.auth)
+    implementation(libs.credentials)
+    implementation(libs.credentials.play.services.auth)
+    implementation(libs.googleid)
+    implementation(libs.com.google.firebase.firebase.auth.v2211)
+    implementation(libs.play.services.auth)
+    implementation(libs.firebase.firestore)
     annotationProcessor(libs.compiler)
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+    implementation(libs.airbnb.lottie)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
