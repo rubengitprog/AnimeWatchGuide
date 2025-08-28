@@ -38,7 +38,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
         Anime anime = favList.get(position);
         SharedPreferences prefs = context.getSharedPreferences("favorites", Context.MODE_PRIVATE);
 
-        // Cargar título e imagen (ya lo tienes)
+        // Cargar título e imagen
         holder.title.setText(anime.title);
         if (anime.images != null && anime.images.jpg != null)
             Glide.with(context).load(anime.images.jpg.image_url).into(holder.image);
@@ -47,6 +47,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.View
         int rating = prefs.getInt("rating_" + anime.mal_id, 0);
         holder.textRating.setText("Rating: " + rating);
     }
+
     @Override
     public int getItemCount() {
         return favList.size();

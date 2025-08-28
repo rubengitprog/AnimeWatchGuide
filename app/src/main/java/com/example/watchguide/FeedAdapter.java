@@ -40,19 +40,19 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
         String actionText;
         switch (item.type) {
             case "favorite_added":
-                actionText = item.userName + " ha añadido \"" + item.animeTitle + "\" a favoritos!";
+                actionText = item.userName + " has added \"" + item.animeTitle + "\" to favorites!";
                 break;
             case "favorite_removed":
-                actionText = item.userName + " ha eliminado \"" + item.animeTitle + "\" de favoritos!";
+                actionText = item.userName + " removed \"" + item.animeTitle + "\" from favorites!";
                 break;
             case "rating":
-                actionText = item.userName + " ha puntuado \"" + item.animeTitle + "\" con " + item.value + "⭐";
+                actionText = item.userName + " has rated \"" + item.animeTitle + "\" with " + item.value + "⭐";
                 break;
             case "watched":
-                actionText = item.userName + " ha terminado de ver \"" + item.animeTitle + "\"";
+                actionText = item.userName + " has finished watching \"" + item.animeTitle + "\"";
                 break;
             default:
-                actionText = item.userName + " hizo algo con \"" + item.animeTitle + "\"";
+                actionText = item.userName + " did something with \"" + item.animeTitle + "\"";
         }
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());

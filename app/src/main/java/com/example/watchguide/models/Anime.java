@@ -8,7 +8,8 @@ public class Anime {
 
     // Campos locales (no vienen de la API)
     public transient int rating = 0;        // de 0 a 5 estrellas
-    public transient boolean visto = false; // si el usuario lo marcó como visto
+    public transient boolean seen = false; // si el usuario lo marcó como visto
+
     public static class Images {
         public JPG jpg;
 
@@ -18,6 +19,7 @@ public class Anime {
 
         public static class JPG {
             public String image_url;
+
             public JPG() {
                 this.image_url = "https://via.placeholder.com/150"; // URL de placeholder
             }

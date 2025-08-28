@@ -1,5 +1,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/nav_profile"
+        android:title="Profile"
+        />
+    <item
+        android:id="@+id/nav_following"
+        android:title="Following"
+        />
+    <item
         android:id="@+id/nav_favorites"
         android:title="Collection"
         />

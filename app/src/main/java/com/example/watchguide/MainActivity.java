@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     private String currentUid;
     private List<ActivityItem> feedList = new ArrayList<>();
     private FirestoreFollowManager followManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,9 +73,9 @@ public class MainActivity extends AppCompatActivity {
         FirebaseApp.initializeApp(this);
 
         if (FirebaseApp.getApps(this).isEmpty()) {
-            Log.e("FirebaseCheck", "❌ Firebase NO está conectado");
+            Log.e("FirebaseCheck", "Firebase NO está conectado");
         } else {
-            Log.d("FirebaseCheck", "✅ Firebase está conectado correctamente");
+            Log.d("FirebaseCheck", "Firebase está conectado correctamente");
         }
 
         currentUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -94,14 +95,14 @@ public class MainActivity extends AppCompatActivity {
 
         // Listener para cambios en la librería del usuario
         userLibrary.listen(data -> {
-            Log.d("FirestoreLibrary", "📚 Biblioteca actualizada: " + data.size() + " items");
+            Log.d("FirestoreLibrary", "Library updated: " + data.size() + " items");
         });
 
         searchInput = findViewById(R.id.searchInput);
         recyclerView = findViewById(R.id.recyclerView);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new AnimeAdapter(animeList, this, userLibrary); // 🔥 Pasamos userLibrary al adapter
+        adapter = new AnimeAdapter(animeList, this, userLibrary); // UserLibrary al adapter
         recyclerView.setAdapter(adapter);
 
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
@@ -119,15 +120,16 @@ public class MainActivity extends AppCompatActivity {
 
         api = retrofit.create(AnimeApi.class);
 
-        searchAnime("One Piece"); // búsqueda inicial por defecto
+        searchAnime("One Piece"); // búsqueda inicial por defecto para mostrar
         searchInput.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String query = s.toString().trim();
-                if(recyclerViewFeed.getVisibility() == View.VISIBLE) {
+                if (recyclerViewFeed.getVisibility() == View.VISIBLE) {
                     recyclerView.setVisibility(View.VISIBLE);
                     recyclerViewFeed.setVisibility(View.GONE);
                 }
@@ -145,34 +147,37 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable s) { }
+            public void afterTextChanged(Editable s) {
+            }
         });
 
         BottomNavigationView bottomNav = findViewById(R.id.bottomNavigationView);
 
+        //BottomNov itemListener
         bottomNav.setOnItemSelectedListener(item -> {
             if (item.getItemId() == R.id.nav_fav) {
                 recyclerViewFeed.setVisibility(View.GONE);
                 recyclerView.setVisibility(View.VISIBLE);
-             //   showFavoritesDialog();
                 return true;
             }
             if (item.getItemId() == R.id.nav_feed) {
-                recyclerView.setVisibility(View.GONE);      // Lista principal
-                recyclerViewFeed.setVisibility(View.VISIBLE); // Feed
+                recyclerView.setVisibility(View.GONE);
+                recyclerViewFeed.setVisibility(View.VISIBLE);
                 loadFeed();
                 return true;
             }
             if (item.getItemId() == R.id.nav_friends) {
-        showFriendsDialog();
+                showFriendsDialog();
                 return true;
             }
             return false;
         });
 
+        // Toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        // Menu lateral
         DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
         NavigationView navigationView = findViewById(R.id.navigationView);
         View headerView = navigationView.getHeaderView(0);
@@ -181,15 +186,38 @@ public class MainActivity extends AppCompatActivity {
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
-            // Nombre del usuario
             String displayName = user.getDisplayName();
-            headerTitle.setText(displayName);
+            String email = user.getEmail();
+            String photoUrl = user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : null;
 
-            // Foto de perfil
-            Uri photoUri = user.getPhotoUrl();
-            if (photoUri != null) {
-                String photoUrl = photoUri.toString();
-                // Cargar con Glide
+            // ✅ Guardar/actualizar en Firestore
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("users").document(uid)
+                    .update(
+                            "username", displayName,
+                            "email", email,
+                            "photoURL", photoUrl
+                    )
+                    .addOnSuccessListener(aVoid -> Log.d("FirestoreUser", "Perfil actualizado correctamente"))
+                    .addOnFailureListener(e -> {
+                        Log.w("FirestoreUser", "El documento no existía, creando uno nuevo...");
+                        // En caso de que no exista aún el documento
+                        java.util.Map<String, Object> userMap = new java.util.HashMap<>();
+                        userMap.put("username", displayName);
+                        userMap.put("email", email);
+                        userMap.put("photoURL", photoUrl);
+                        db.collection("users").document(uid).set(userMap);
+                    });
+
+            // 👇 Drawer UI
+            headerTitle.setText(displayName);
+            headerTitle.setOnClickListener(v -> {
+                Toast.makeText(this, "Has pulsado tu nombre 😎", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(this, ProfileActivity.class);
+                startActivity(intent);
+            });
+
+            if (photoUrl != null) {
                 Glide.with(this)
                         .load(photoUrl)
                         .placeholder(R.drawable.circle_background) // tu imagen por defecto
@@ -198,12 +226,14 @@ public class MainActivity extends AppCompatActivity {
                 headerImage.setImageResource(R.drawable.circle_background);
             }
         }
+
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawerLayout, toolbar,
                 0, 0
         );
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
+
 
         navigationView.setNavigationItemSelectedListener(item -> {
             if (item.getItemId() == R.id.nav_favorites) {
@@ -257,7 +287,7 @@ public class MainActivity extends AppCompatActivity {
                     animeList.addAll(response.body().data);
                     adapter.notifyDataSetChanged();
                 } else {
-                    Toast.makeText(MainActivity.this, "Sin resultados", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "No results", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -287,7 +317,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (favList.isEmpty()) {
-                Toast.makeText(this, "No tienes favoritos", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "No favorites", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -300,10 +330,11 @@ public class MainActivity extends AppCompatActivity {
             new AlertDialog.Builder(this)
                     .setTitle("Favorites list")
                     .setView(dialogView)
-                    .setPositiveButton("Cerrar", null)
+                    .setPositiveButton("Close", null)
                     .show();
         });
     }
+
     private void loadFeed() {
         followManager.listenFollowing(followingUids -> {
             // Asegurarnos de incluir siempre el UID del usuario actual
@@ -331,12 +362,11 @@ public class MainActivity extends AppCompatActivity {
                             feedAdapter.notifyDataSetChanged();
                         })
                         .addOnFailureListener(e -> {
-                            Log.e("FeedLoad", "Error al cargar actividades de " + uid + ": " + e.getMessage());
+                            Log.e("FeedLoad", "Error loading activites " + uid + ": " + e.getMessage());
                         });
             }
         });
     }
-
 
 
     private void showFriendsDialog() {
@@ -351,12 +381,18 @@ public class MainActivity extends AppCompatActivity {
 
         // Buscar usuarios por nombre
         editSearch.addTextChangedListener(new android.text.TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
             @Override
             public void afterTextChanged(android.text.Editable s) {
                 String query = s.toString().trim();
-                Log.d("FriendsSearch", "Buscando usuarios con query: " + query); // <-- log aquí
+                Log.d("FriendsSearch", "Users with query: " + query);
                 if (query.isEmpty()) {
                     userList.clear();
                     userAdapter.notifyDataSetChanged();
@@ -369,27 +405,28 @@ public class MainActivity extends AppCompatActivity {
                         .whereLessThanOrEqualTo("username", query + "\uf8ff")
                         .get()
                         .addOnSuccessListener(snap -> {
-                            Log.d("FriendsSearch", "Documentos encontrados: " + snap.getDocuments().size()); // <-- log aquí
+                            Log.d("FriendsSearch", "Documents found: " + snap.getDocuments().size());
                             userList.clear();
                             for (var doc : snap.getDocuments()) {
                                 String uid = doc.getId();
                                 String username = doc.getString("username");
-                                Log.d("FriendsSearch", "Usuario: " + username + " UID: " + uid); // <-- log aquí
+                                Log.d("FriendsSearch", "User: " + username + " UID: " + uid);
 
                                 if (uid.equals(currentUid)) continue; // no mostrar a ti mismo
                                 if (username != null) userList.add(new UserItem(uid, username));
                             }
                             userAdapter.notifyDataSetChanged();
-                        })    .addOnFailureListener(e -> {
-                            Log.e("FriendsSearch", "Error buscando usuarios: " + e.getMessage());
-                        });;
+                        }).addOnFailureListener(e -> {
+                            Log.e("FriendsSearch", "Error searching users: " + e.getMessage());
+                        });
+                ;
             }
         });
 
         new androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("Buscar amigos")
+                .setTitle("Add new Friends")
                 .setView(dialogView)
-                .setPositiveButton("Cerrar", null)
+                .setPositiveButton("Close", null)
                 .show();
     }
 

@@ -57,7 +57,7 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
         int rating = (entry != null) ? entry.rating : 0;
 
         anime.rating = rating;
-        anime.visto = isWatched;
+        anime.seen = isWatched;
 
         holder.favButton.setImageResource(isFav ? android.R.drawable.btn_star_big_on : android.R.drawable.btn_star_big_off);
         holder.itemView.setBackgroundColor(isWatched ? context.getResources().getColor(android.R.color.darker_gray)
@@ -70,7 +70,7 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
                     .addOnFailureListener(e -> Toast.makeText(context, "Error al cambiar favorito", Toast.LENGTH_SHORT).show());
         });
 
-        // Click en item → RatingBar
+        // Click en item → Rating
         holder.itemView.setOnClickListener(v -> {
             View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_anime, null);
             RatingBar ratingBar = dialogView.findViewById(R.id.ratingBar);
@@ -80,11 +80,11 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
                 if (!fromUser) return;
                 if (r == anime.rating) {
                     anime.rating = 0;
-                    anime.visto = false;
+                    anime.seen = false;
                     rb.setRating(0);
                 } else {
                     anime.rating = (int) r;
-                    anime.visto = r > 0;
+                    anime.seen = r > 0;
                 }
             });
 
@@ -93,8 +93,8 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
                     .setView(dialogView)
                     .setPositiveButton("Guardar", (dialog, which) -> {
                         userLibrary.setRating(anime, anime.rating)
-                                .addOnSuccessListener(aVoid -> userLibrary.setWatched(anime, anime.visto)
-                                        .addOnSuccessListener(aVoid1 -> holder.itemView.setBackgroundColor(anime.visto ?
+                                .addOnSuccessListener(aVoid -> userLibrary.setWatched(anime, anime.seen)
+                                        .addOnSuccessListener(aVoid1 -> holder.itemView.setBackgroundColor(anime.seen ?
                                                 context.getResources().getColor(android.R.color.darker_gray) :
                                                 context.getResources().getColor(android.R.color.white))))
                                 .addOnFailureListener(e -> Toast.makeText(context, "Error al guardar rating", Toast.LENGTH_SHORT).show());
@@ -105,7 +105,9 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
     }
 
     @Override
-    public int getItemCount() { return animeList.size(); }
+    public int getItemCount() {
+        return animeList.size();
+    }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView title, synopsis;

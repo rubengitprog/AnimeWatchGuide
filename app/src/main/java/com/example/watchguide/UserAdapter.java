@@ -20,7 +20,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     private final FirestoreFollowManager followManager;
 
     public UserAdapter(List<UserItem> userList, Context context, FirestoreFollowManager followManager) {
-        this.userList =userList;
+        this.userList = userList;
         this.context = context;
         this.followManager = followManager;
     }
@@ -38,17 +38,17 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         holder.textUsername.setText(user.username);
 
         // Inicialmente mostramos "Seguir"
-        holder.btnFollow.setText("Seguir");
+        holder.btnFollow.setText("Follow");
 
         // Comprobar si ya seguimos
         followManager.isFollowing(user.uid).addOnSuccessListener(isFollowing -> {
-            holder.btnFollow.setText(isFollowing ? "Siguiendo" : "Seguir");
+            holder.btnFollow.setText(isFollowing ? "Following" : "Follow");
         });
 
         holder.btnFollow.setOnClickListener(v -> {
             followManager.follow(user.uid)
                     .addOnSuccessListener(aVoid -> {
-                        holder.btnFollow.setText("Siguiendo");
+                        holder.btnFollow.setText("Following");
                         Toast.makeText(context, "Ahora sigues a " + user.username, Toast.LENGTH_SHORT).show();
                     })
                     .addOnFailureListener(e -> Toast.makeText(context, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());

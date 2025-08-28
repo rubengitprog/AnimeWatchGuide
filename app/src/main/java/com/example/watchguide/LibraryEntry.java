@@ -8,6 +8,7 @@ public class LibraryEntry {
     public boolean watched;
     public long updatedAt;
 
-    public LibraryEntry() {} // Firestore necesita constructor vacío
+    public LibraryEntry() {
+    } // Constructor vacío para Firestore
 }
 

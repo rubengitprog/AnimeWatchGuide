@@ -8,12 +8,12 @@
         android:id="@+id/editSearchUser"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Buscar por nombre de usuario"
-        android:inputType="text"/>
+        android:hint="Search by username"
+        android:inputType="text" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewUsers"
         android:layout_width="match_parent"
         android:layout_height="300dp"
-        android:layout_marginTop="12dp"/>
+        android:layout_marginTop="12dp" />
 </LinearLayout>

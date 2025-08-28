@@ -9,12 +9,12 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="Nombre de usuario"
-        android:textSize="16sp"/>
+        android:text="Username"
+        android:textSize="16sp" />
 
     <Button
         android:id="@+id/btnFollow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="+"/>
+        android:text="+" />
 </LinearLayout>

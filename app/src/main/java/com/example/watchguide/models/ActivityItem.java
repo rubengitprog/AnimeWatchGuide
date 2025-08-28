@@ -9,6 +9,7 @@ public class ActivityItem {
     public int value;   // solo para rating
     public long timestamp;
 
-    public ActivityItem() {} // Firestore necesita constructor vacío
+    public ActivityItem() {
+    } // Firestore necesita constructor vacío
 }
 

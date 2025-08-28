@@ -28,13 +28,13 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // 1️⃣ Comprobar si ya hay usuario logueado en Firebase
+        // Comprobar si el usuario ha logueado en Firebase
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         if (mAuth.getCurrentUser() != null) {
-            // Usuario ya logueado → ir directo a MainActivity
+            // Usuario ya logueado  va directamente  a MainActivity
             startActivity(new Intent(this, MainActivity.class));
             finish();
-            return; // Salimos del onCreate
+            return;
         }
 
         setContentView(R.layout.acivity_login);
@@ -47,7 +47,7 @@ public class LoginActivity extends AppCompatActivity {
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
-        // 2️⃣ Intent de inicio silencioso opcional (no pedirá login si ya está logueado en Google)
+        // No pedirá login si ya está logueado en Google
         GoogleSignIn.getLastSignedInAccount(this);
 
         btnGoogle.setOnClickListener(v -> signIn());
@@ -79,14 +79,14 @@ public class LoginActivity extends AppCompatActivity {
                                 FirebaseUser firebaseUser = mAuth.getCurrentUser();
 
                                 if (firebaseUser != null) {
-                                    // 3️⃣ Guardar info del usuario en Firestore
+                                    // Guardar info del usuario en Firestore
                                     String uid = firebaseUser.getUid();
                                     String name = firebaseUser.getDisplayName();
                                     String email = firebaseUser.getEmail();
                                     String photoUrl = account.getPhotoUrl() != null ? account.getPhotoUrl().toString() : null;
                                     FirebaseFirestore db = FirebaseFirestore.getInstance();
                                     db.collection("users").document(uid)
-                                            .set(new UserFirestore(name, email,photoUrl))
+                                            .set(new UserFirestore(name, email, photoUrl))
                                             .addOnSuccessListener(aVoid ->
                                                     Toast.makeText(this, "Bienvenido " + name, Toast.LENGTH_SHORT).show()
                                             )
@@ -95,7 +95,7 @@ public class LoginActivity extends AppCompatActivity {
                                             );
                                 }
 
-                                // Abrir MainActivity
+                                // Abrir MainActivity una vez logueado
                                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
                                 finish();
                             } else {

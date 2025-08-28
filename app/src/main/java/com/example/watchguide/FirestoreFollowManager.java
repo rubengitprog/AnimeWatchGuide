@@ -23,7 +23,7 @@ public class FirestoreFollowManager {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        Map<String,Object> data = new HashMap<>();
+        Map<String, Object> data = new HashMap<>();
         data.put("followedAt", System.currentTimeMillis()); // campo obligatorio
 
         Task<Void> t1 = db.collection("users")

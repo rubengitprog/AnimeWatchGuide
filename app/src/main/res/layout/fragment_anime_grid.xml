@@ -6,7 +6,7 @@
         android:id="@+id/tableLayoutAnimes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:stretchColumns="*"
+        android:padding="8dp"
         android:shrinkColumns="*"
-        android:padding="8dp"/>
+        android:stretchColumns="*" />
 </ScrollView>

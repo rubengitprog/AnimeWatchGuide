@@ -20,15 +20,15 @@
         android:gravity="center_vertical"
         android:paddingStart="8dp"
         android:text="Anime Title"
-        android:textSize="16sp"
-        android:textColor="@android:color/black" />
+        android:textColor="@android:color/black"
+        android:textSize="16sp" />
 
     <TextView
         android:id="@+id/textRating"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:gravity="center_vertical|end"
+        android:paddingStart="8dp"
         android:text="Rating: 0"
-        android:textColor="@android:color/black"
-        android:paddingStart="8dp"/>
+        android:textColor="@android:color/black" />
 </LinearLayout>
