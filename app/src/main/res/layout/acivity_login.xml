@@ -44,7 +44,7 @@
                 android:layout_width="120dp"
                 android:layout_height="120dp"
                 android:layout_marginBottom="24dp"
-                android:src="@drawable/ic_launcher_foreground" />
+                android:src="@drawable/icono" />
 
             <!-- Google Sign-In Button -->
             <com.google.android.gms.common.SignInButton
@@ -54,16 +54,6 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp" />
 
-            <!-- Texto de información -->
-            <TextView
-                android:id="@+id/loginInfo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center"
-                android:text="Inicia sesión con tu cuenta de Google"
-                android:textColor="@android:color/black"
-                android:textSize="14sp" />
 
         </LinearLayout>
 

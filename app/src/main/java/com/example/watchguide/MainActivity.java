@@ -212,9 +212,7 @@ public class MainActivity extends AppCompatActivity {
             // 👇 Drawer UI
             headerTitle.setText(displayName);
             headerTitle.setOnClickListener(v -> {
-                Toast.makeText(this, "Has pulsado tu nombre 😎", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(this, ProfileActivity.class);
-                startActivity(intent);
+                openProfile();
             });
 
             if (photoUrl != null) {
@@ -236,8 +234,9 @@ public class MainActivity extends AppCompatActivity {
 
 
         navigationView.setNavigationItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.nav_favorites) {
-                showFavoritesDialog();
+
+            if (item.getItemId() == R.id.profileName|| item.getItemId() == R.id.profileImage||item.getItemId() == R.id.nav_profile) {
+                openProfile();
             }
             if (item.getItemId() == R.id.nav_Info) {
                 new AlertDialog.Builder(this)
@@ -278,6 +277,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void openProfile() {
+        Intent intent = new Intent(this, ProfileActivity.class);
+        startActivity(intent);
+    }
+
     private void searchAnime(String query) {
         api.searchAnime(query).enqueue(new Callback<AnimeResponse>() {
             @Override
@@ -295,43 +299,6 @@ public class MainActivity extends AppCompatActivity {
             public void onFailure(Call<AnimeResponse> call, Throwable t) {
                 Toast.makeText(MainActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
-        });
-    }
-
-    private void showFavoritesDialog() {
-        userLibrary.getFavoritesOnce().addOnSuccessListener(snap -> {
-            List<Anime> favList = new ArrayList<>();
-            for (DocumentSnapshot d : snap.getDocuments()) {
-                Anime anime = new Anime();
-                anime.mal_id = Integer.parseInt(d.getId());
-                anime.title = d.getString("title");
-
-                String image = d.getString("image_url");
-                if (image != null) {
-                    anime.images = new Anime.Images();
-                    anime.images.jpg = new Anime.Images.JPG();
-                    anime.images.jpg.image_url = image;
-                }
-
-                favList.add(anime);
-            }
-
-            if (favList.isEmpty()) {
-                Toast.makeText(this, "No favorites", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            View dialogView = getLayoutInflater().inflate(R.layout.dialog_favorites, null);
-            RecyclerView favRecyclerView = dialogView.findViewById(R.id.recyclerViewFavs);
-            favRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-            FavoritesAdapter favAdapter = new FavoritesAdapter(favList, this);
-            favRecyclerView.setAdapter(favAdapter);
-
-            new AlertDialog.Builder(this)
-                    .setTitle("Favorites list")
-                    .setView(dialogView)
-                    .setPositiveButton("Close", null)
-                    .show();
         });
     }
 
@@ -378,7 +345,20 @@ public class MainActivity extends AppCompatActivity {
         List<UserItem> userList = new ArrayList<>();
         UserAdapter userAdapter = new UserAdapter(userList, this, followManager);
         recyclerViewUsers.setAdapter(userAdapter);
-
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(currentUid)
+                .collection("following")
+                .get()
+                .addOnSuccessListener(snap -> {
+                    userList.clear();
+                    for (DocumentSnapshot doc : snap.getDocuments()) {
+                        String fUid = doc.getId();
+                        String username = doc.getString("username");
+                        if (username != null) userList.add(new UserItem(fUid, username));
+                    }
+                    userAdapter.notifyDataSetChanged(); // Mostrar de inmediato los que sigues
+                });
         // Buscar usuarios por nombre
         editSearch.addTextChangedListener(new android.text.TextWatcher() {
             @Override

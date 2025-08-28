@@ -1,5 +1,6 @@
 package com.example.watchguide;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ public class FollowingAdapter extends RecyclerView.Adapter<FollowingAdapter.View
     private final List<FollowingItem> followingList;
     private final OnUnfollowListener listener;
 
+
     public interface OnUnfollowListener {
         void onUnfollow(FollowingItem item);
     }
@@ -33,6 +35,7 @@ public class FollowingAdapter extends RecyclerView.Adapter<FollowingAdapter.View
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_following, parent, false);
+
         return new ViewHolder(view);
     }
 
@@ -51,6 +54,11 @@ public class FollowingAdapter extends RecyclerView.Adapter<FollowingAdapter.View
         }
 
         holder.unfollowButton.setOnClickListener(v -> listener.onUnfollow(item));
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(holder.itemView.getContext(), ProfileActivity.class);
+            intent.putExtra("uid", item.uid);
+            holder.itemView.getContext().startActivity(intent);
+        });
     }
 
     @Override

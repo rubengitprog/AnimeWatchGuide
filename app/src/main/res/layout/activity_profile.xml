@@ -3,7 +3,9 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+
+    android:fitsSystemWindows="true"
+    android:clipToPadding="false">
 
     <!-- Imagen de usuario -->
     <ImageView
@@ -12,7 +14,10 @@
         android:layout_height="120dp"
         android:layout_gravity="center"
         android:scaleType="centerCrop"
-        android:src="@drawable/aaa"/>
+        android:src="@drawable/aaa"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/circle_shape"
+        android:clipToOutline="true" />
 
     <!-- Nombre -->
     <TextView
@@ -31,6 +36,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
+
         android:layout_marginTop="8dp">
 
         <TextView
@@ -38,12 +44,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0 Followers"
+            android:textStyle="bold"
             android:layout_marginEnd="24dp"/>
 
         <TextView
             android:id="@+id/followingCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textStyle="bold"
             android:text="0 Following"/>
     </LinearLayout>
 
@@ -60,5 +68,4 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"/>
-
 </LinearLayout>

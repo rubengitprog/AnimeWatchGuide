@@ -18,6 +18,7 @@ import com.example.watchguide.models.FollowingItem;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -29,14 +30,18 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView profileName, followersCount, followingCount;
     private TabLayout tabLayout;
 
-    private final String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    private String uid;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-
+        uid = getIntent().getStringExtra("uid");
+        if (uid == null) {
+            // Si no hay uid, usar el usuario actual
+            uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        }
         profileImage = findViewById(R.id.profileImage);
         profileName = findViewById(R.id.profileName);
         followersCount = findViewById(R.id.followersCount);
@@ -47,8 +52,8 @@ public class ProfileActivity extends AppCompatActivity {
         loadCounters();
 
         // Tabs
-        tabLayout.addTab(tabLayout.newTab().setText("Favoritos"));
-        tabLayout.addTab(tabLayout.newTab().setText("Vistos"));
+        tabLayout.addTab(tabLayout.newTab().setText("Favorites"));
+        tabLayout.addTab(tabLayout.newTab().setText("Seen"));
 
         // Por defecto mostramos favoritos
         replaceFragment(new FavoritesFragment(uid));
@@ -69,57 +74,72 @@ public class ProfileActivity extends AppCompatActivity {
             @Override public void onTabReselected(TabLayout.Tab tab) {}
         });
 
-        profileName.setOnClickListener(v ->
-                Toast.makeText(this, "Nombre: " + profileName.getText(), Toast.LENGTH_SHORT).show()
-        );
+
+
         followingCount.setOnClickListener(v -> {
-            FirebaseFirestore.getInstance()
-                    .collection("users")
-                    .document(uid)
+            db.collection("users").document(uid)
                     .collection("following")
                     .get()
                     .addOnSuccessListener(snapshot -> {
-                        List<FollowingItem> list = new ArrayList<>();
+                        List<String> followingIds = new ArrayList<>();
                         for (DocumentSnapshot doc : snapshot.getDocuments()) {
-                            String fUid = doc.getId();
-                            String photoURL = doc.getString("photoURL");
-                            String username = doc.getString("username");
-                            list.add(new FollowingItem(fUid, username,photoURL));
+                            followingIds.add(doc.getId());
                         }
 
-                        View dialogView = getLayoutInflater().inflate(R.layout.dialog_following, null);
-                        RecyclerView recyclerView = dialogView.findViewById(R.id.recyclerViewFollowing);
-                        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+                        if (followingIds.isEmpty()) {
+                            Toast.makeText(this, "No estás siguiendo a nadie", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
 
-                        final FollowingAdapter[] adapterHolder = new FollowingAdapter[1];
+                        // Consulta usando whereIn para traer todos los usuarios seguidos
+                        db.collection("users")
+                                .whereIn(FieldPath.documentId(), followingIds)
+                                .get()
+                                .addOnSuccessListener(usersSnap -> {
+                                    List<FollowingItem> list = new ArrayList<>();
+                                    for (DocumentSnapshot userDoc : usersSnap.getDocuments()) {
+                                        String fUid = userDoc.getId();
+                                        String username = userDoc.getString("username");
+                                        String photoURL = userDoc.getString("photoURL");
+                                        list.add(new FollowingItem(fUid, username, photoURL));
+                                    }
 
-                        adapterHolder[0] = new FollowingAdapter(list, item -> {
-                            FirebaseFirestore db = FirebaseFirestore.getInstance();
-                            db.collection("users").document(uid)
-                                    .collection("following")
-                                    .document(item.uid)
-                                    .delete()
-                                    .addOnSuccessListener(aVoid -> {
-                                        Toast.makeText(this, "Unfollowed " + item.username, Toast.LENGTH_SHORT).show();
-                                        list.remove(item);
-                                        adapterHolder[0].notifyDataSetChanged(); // ahora funciona
-                                    })
-                                    .addOnFailureListener(e ->
-                                            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show()
-                                    );
-                        });
+                                    showFollowingDialog(list);
+                                });
+                    });
+        });
+    }
 
-                        recyclerView.setAdapter(adapterHolder[0]);
+    private void showFollowingDialog(List<FollowingItem> list) {
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_following, null);
+        RecyclerView recyclerView = dialogView.findViewById(R.id.recyclerViewFollowing);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-                        new AlertDialog.Builder(this)
-                                .setTitle("Following")
-                                .setView(dialogView)
-                                .setPositiveButton("Close", null)
-                                .show();
+        // Declaramos el adapter final para poder usarlo dentro del listener
+        final FollowingAdapter[] adapterHolder = new FollowingAdapter[1];
+
+        adapterHolder[0] = new FollowingAdapter(list, item -> {
+            db.collection("users").document(uid)
+                    .collection("following")
+                    .document(item.uid)
+                    .delete()
+                    .addOnSuccessListener(aVoid -> {
+                        list.remove(item);
+                        adapterHolder[0].notifyDataSetChanged(); // ✅ siempre inicializado
+                        Toast.makeText(this, "Unfollowed " + item.username, Toast.LENGTH_SHORT).show();
                     });
         });
 
+        recyclerView.setAdapter(adapterHolder[0]);
+
+
+        new AlertDialog.Builder(this)
+                .setTitle("Following")
+                .setView(dialogView)
+                .setPositiveButton("Close", null)
+                .show();
     }
+
 
     private void loadUserInfo() {
         db.collection("users").document(uid).get().addOnSuccessListener(doc -> {

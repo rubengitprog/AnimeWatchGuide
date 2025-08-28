@@ -3,14 +3,7 @@
         android:id="@+id/nav_profile"
         android:title="Profile"
         />
-    <item
-        android:id="@+id/nav_following"
-        android:title="Following"
-        />
-    <item
-        android:id="@+id/nav_favorites"
-        android:title="Collection"
-        />
+
     <item
         android:id="@+id/nav_settings"
         android:title="Settings"
