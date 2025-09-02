@@ -12,4 +12,3 @@ public class ActivityItem {
     public ActivityItem() {
     } // Firestore necesita constructor vacío
 }
-

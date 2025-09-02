@@ -11,4 +11,3 @@ public class LibraryEntry {
     public LibraryEntry() {
     } // Constructor vacío para Firestore
 }
-

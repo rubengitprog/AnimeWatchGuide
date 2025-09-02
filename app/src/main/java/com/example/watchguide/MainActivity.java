@@ -195,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
         View headerView = navigationView.getHeaderView(0);
         ImageView headerImage = headerView.findViewById(R.id.headerImage);
         TextView headerTitle = headerView.findViewById(R.id.headerTitle);
-
+        ImageButton iconLapiz = headerView.findViewById(R.id.iconLapiz);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             String email = user.getEmail();
@@ -240,7 +240,15 @@ public class MainActivity extends AppCompatActivity {
 
             headerTitle.setOnClickListener(v -> {
                 changeName();
+
             });
+            iconLapiz.setOnClickListener(v -> {
+                changeName();
+
+            });
+
+
+
 
 
             if (photoUrl != null) {
