@@ -5,7 +5,9 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.example.watchguide.models.UserFirestore;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -17,6 +19,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -68,7 +73,6 @@ public class LoginActivity extends AppCompatActivity {
             try {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
 
-                // Autenticamos con Firebase usando el token de Google
                 com.google.firebase.auth.AuthCredential credential =
                         com.google.firebase.auth.GoogleAuthProvider.getCredential(account.getIdToken(), null);
 
@@ -76,29 +80,42 @@ public class LoginActivity extends AppCompatActivity {
                 mAuth.signInWithCredential(credential)
                         .addOnCompleteListener(this, task1 -> {
                             if (task1.isSuccessful()) {
-                                // Usuario logueado en Firebase
                                 FirebaseUser firebaseUser = mAuth.getCurrentUser();
 
                                 if (firebaseUser != null) {
-                                    // Guardar info del usuario en Firestore
                                     String uid = firebaseUser.getUid();
-                                    String name = firebaseUser.getDisplayName();
                                     String email = firebaseUser.getEmail();
-                                    String photoUrl = account.getPhotoUrl() != null ? account.getPhotoUrl().toString() : null;
-                                    FirebaseFirestore db = FirebaseFirestore.getInstance();
-                                    db.collection("users").document(uid)
-                                            .set(new UserFirestore(name, email, photoUrl))
-                                            .addOnSuccessListener(aVoid ->
-                                                    Toast.makeText(this, "Bienvenido " + name, Toast.LENGTH_SHORT).show()
-                                            )
-                                            .addOnFailureListener(e ->
-                                                    Toast.makeText(this, "Error guardando usuario: " + e.getMessage(), Toast.LENGTH_SHORT).show()
-                                            );
-                                }
+                                    String defaultName = firebaseUser.getDisplayName();
+                                    String defaultPhotoUrl = account.getPhotoUrl() != null ? account.getPhotoUrl().toString() : null;
 
-                                // Abrir MainActivity una vez logueado
-                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                                finish();
+                                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                                    DocumentReference userRef = db.collection("users").document(uid);
+
+                                    userRef.get().addOnSuccessListener(document -> {
+                                        if (!document.exists()) {
+                                            // 🔹 Solo la primera vez guardamos datos de Google
+                                            Map<String, Object> userData = new HashMap<>();
+                                            userData.put("username", defaultName);
+                                            userData.put("email", email);
+                                            userData.put("photoURL", defaultPhotoUrl);
+
+                                            userRef.set(userData)
+                                                    .addOnSuccessListener(aVoid ->
+                                                            Toast.makeText(this, "Bienvenido " + defaultName, Toast.LENGTH_SHORT).show()
+                                                    )
+                                                    .addOnFailureListener(e ->
+                                                            Toast.makeText(this, "Error guardando usuario: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                                                    );
+                                        } else {
+                                            // 🔹 Usuario ya existe → usamos SIEMPRE lo que haya en Firestore
+                                            String username = document.getString("username");
+                                            Toast.makeText(this, "Bienvenido de nuevo " + username, Toast.LENGTH_SHORT).show();
+                                        }
+
+                                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                                        finish();
+                                    });
+                                }
                             } else {
                                 Toast.makeText(this, "Error autenticando en Firebase: " + task1.getException().getMessage(), Toast.LENGTH_SHORT).show();
                             }

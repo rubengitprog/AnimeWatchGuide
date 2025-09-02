@@ -56,7 +56,7 @@ public class WatchedFragment extends Fragment {
         FirebaseFirestore.getInstance()
                 .collection("users").document(uid)
                 .collection("library")
-                .whereEqualTo("seen", true)
+                .whereEqualTo("watched", true)
                 .get()
                 .addOnSuccessListener(snap -> {  // snap = QuerySnapshot
                     animeItems.clear();

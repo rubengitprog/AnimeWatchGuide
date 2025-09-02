@@ -1,8 +1,11 @@
 package com.example.watchguide;
 
-import android.app.AlertDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,34 +23,47 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 
 public class ProfileActivity extends AppCompatActivity {
 
     private ImageView profileImage;
     private TextView profileName, followersCount, followingCount;
     private TabLayout tabLayout;
+    private ImageButton imageButton;
 
     private String uid;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+
         uid = getIntent().getStringExtra("uid");
         if (uid == null) {
-            // Si no hay uid, usar el usuario actual
             uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         }
+
         profileImage = findViewById(R.id.profileImage);
         profileName = findViewById(R.id.profileName);
         followersCount = findViewById(R.id.followersCount);
         followingCount = findViewById(R.id.followingCount);
         tabLayout = findViewById(R.id.tabLayout);
+        imageButton = findViewById(R.id.imageButton);
 
+
+
+        // Cargar info del usuario y banner
         loadUserInfo();
         loadCounters();
 
@@ -55,7 +71,6 @@ public class ProfileActivity extends AppCompatActivity {
         tabLayout.addTab(tabLayout.newTab().setText("Favorites"));
         tabLayout.addTab(tabLayout.newTab().setText("Seen"));
 
-        // Por defecto mostramos favoritos
         replaceFragment(new FavoritesFragment(uid));
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -74,40 +89,70 @@ public class ProfileActivity extends AppCompatActivity {
             @Override public void onTabReselected(TabLayout.Tab tab) {}
         });
 
+        // Mostrar lista de following al pulsar el contador
+        followingCount.setOnClickListener(v -> loadFollowing());
+    }
+
+    private void loadUserInfo() {
+        db.collection("users").document(uid).get().addOnSuccessListener(doc -> {
+            if (doc.exists()) {
+                String name = doc.getString("username");
+                String photoUrl = doc.getString("photoURL");
+                String bannerUrl = doc.getString("photoBanner");
+
+                profileName.setText(name != null ? name : "Usuario");
+
+                if (photoUrl != null && !photoUrl.isEmpty()) {
+                    Glide.with(this).load(photoUrl).into(profileImage);
+                }
+
+                if (bannerUrl != null && !bannerUrl.isEmpty()) {
+                    Glide.with(this).load(bannerUrl).into(imageButton);
+                } else {
+                    imageButton.setImageResource(R.drawable.piece); // banner por defecto
+                }
+            }
+        }).addOnFailureListener(e -> imageButton.setImageResource(R.drawable.piece));
+    }
 
 
-        followingCount.setOnClickListener(v -> {
-            db.collection("users").document(uid)
-                    .collection("following")
-                    .get()
-                    .addOnSuccessListener(snapshot -> {
-                        List<String> followingIds = new ArrayList<>();
-                        for (DocumentSnapshot doc : snapshot.getDocuments()) {
-                            followingIds.add(doc.getId());
-                        }
+    private void loadCounters() {
+        db.collection("users").document(uid).collection("followers")
+                .get().addOnSuccessListener(snap -> followersCount.setText(snap.size() + " Followers"));
 
-                        if (followingIds.isEmpty()) {
-                            Toast.makeText(this, "No estás siguiendo a nadie", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
+        db.collection("users").document(uid).collection("following")
+                .get().addOnSuccessListener(snap -> followingCount.setText(snap.size() + " Following"));
+    }
 
-                        // Consulta usando whereIn para traer todos los usuarios seguidos
-                        db.collection("users")
-                                .whereIn(FieldPath.documentId(), followingIds)
-                                .get()
-                                .addOnSuccessListener(usersSnap -> {
-                                    List<FollowingItem> list = new ArrayList<>();
-                                    for (DocumentSnapshot userDoc : usersSnap.getDocuments()) {
-                                        String fUid = userDoc.getId();
-                                        String username = userDoc.getString("username");
-                                        String photoURL = userDoc.getString("photoURL");
-                                        list.add(new FollowingItem(fUid, username, photoURL));
-                                    }
+    private void loadFollowing() {
+        db.collection("users").document(uid)
+                .collection("following")
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    List<String> followingIds = new ArrayList<>();
+                    for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                        followingIds.add(doc.getId());
+                    }
 
-                                    showFollowingDialog(list);
-                                });
-                    });
-        });
+                    if (followingIds.isEmpty()) {
+                        Toast.makeText(this, "No estás siguiendo a nadie", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    db.collection("users")
+                            .whereIn(FieldPath.documentId(), followingIds)
+                            .get()
+                            .addOnSuccessListener(usersSnap -> {
+                                List<FollowingItem> list = new ArrayList<>();
+                                for (DocumentSnapshot userDoc : usersSnap.getDocuments()) {
+                                    String fUid = userDoc.getId();
+                                    String username = userDoc.getString("username");
+                                    String photoURL = userDoc.getString("photoURL");
+                                    list.add(new FollowingItem(fUid, username, photoURL));
+                                }
+                                showFollowingDialog(list);
+                            });
+                });
     }
 
     private void showFollowingDialog(List<FollowingItem> list) {
@@ -115,9 +160,7 @@ public class ProfileActivity extends AppCompatActivity {
         RecyclerView recyclerView = dialogView.findViewById(R.id.recyclerViewFollowing);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Declaramos el adapter final para poder usarlo dentro del listener
         final FollowingAdapter[] adapterHolder = new FollowingAdapter[1];
-
         adapterHolder[0] = new FollowingAdapter(list, item -> {
             db.collection("users").document(uid)
                     .collection("following")
@@ -125,45 +168,18 @@ public class ProfileActivity extends AppCompatActivity {
                     .delete()
                     .addOnSuccessListener(aVoid -> {
                         list.remove(item);
-                        adapterHolder[0].notifyDataSetChanged(); // ✅ siempre inicializado
+                        adapterHolder[0].notifyDataSetChanged();
                         Toast.makeText(this, "Unfollowed " + item.username, Toast.LENGTH_SHORT).show();
                     });
         });
 
         recyclerView.setAdapter(adapterHolder[0]);
 
-
-        new AlertDialog.Builder(this)
+        new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Following")
                 .setView(dialogView)
                 .setPositiveButton("Close", null)
                 .show();
-    }
-
-
-    private void loadUserInfo() {
-        db.collection("users").document(uid).get().addOnSuccessListener(doc -> {
-            if (doc.exists()) {
-                String name = doc.getString("username");
-                String photoUrl = doc.getString("photoURL");
-
-                profileName.setText(name != null ? name : "Usuario");
-
-                if (photoUrl != null && !photoUrl.isEmpty()) {
-                    Glide.with(this).load(photoUrl).into(profileImage);
-                }
-            }
-        });
-    }
-
-    private void loadCounters() {
-        db.collection("users").document(uid).collection("followers")
-                .get().addOnSuccessListener(snap ->
-                        followersCount.setText(snap.size() + " Followers"));
-
-        db.collection("users").document(uid).collection("following")
-                .get().addOnSuccessListener(snap ->
-                        followingCount.setText(snap.size() + " Following"));
     }
 
     private void replaceFragment(Fragment fragment) {

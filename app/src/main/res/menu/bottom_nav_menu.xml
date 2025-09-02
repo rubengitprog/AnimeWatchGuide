@@ -2,16 +2,16 @@
     <item
         android:id="@+id/nav_fav"
         android:title="Animes"
-        android:icon="@android:drawable/ic_menu_slideshow" />
+        android:icon="@drawable/listicon" />
 
     <item
         android:id="@+id/nav_friends"
         android:title="Friends"
-        android:icon="@android:drawable/ic_menu_agenda" />
+        android:icon="@drawable/nuevoamigo" />
 
     <item
         android:id="@+id/nav_feed"
         android:title="Feed"
-        android:icon="@android:drawable/ic_menu_agenda" />
+        android:icon="@drawable/feedpng" />
 
 </menu>

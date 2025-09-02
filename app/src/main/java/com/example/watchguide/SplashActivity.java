@@ -17,7 +17,7 @@ public class SplashActivity extends AppCompatActivity {
 
         LottieAnimationView animationView = findViewById(R.id.lottieView);
 
-        animationView.setAnimation(R.raw.animacion);
+        animationView.setAnimation(R.raw.carga);
         animationView.playAnimation();
         animationView.addAnimatorListener(new Animator.AnimatorListener() {
             @Override

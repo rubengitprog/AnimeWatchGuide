@@ -4,6 +4,8 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -41,6 +43,7 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Anime anime = animeList.get(position);
+
         holder.title.setText(anime.title);
         holder.synopsis.setText(anime.synopsis);
 
@@ -48,44 +51,55 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
             Glide.with(context).load(anime.images.jpg.image_url).into(holder.image);
         }
 
-        // Estado actual desde cache
-        Map<Integer, LibraryEntry> cache = userLibrary.getCache();
-        LibraryEntry entry = cache.get(anime.mal_id);
-
+        // Obtener estado real desde la cache de Firestore
+        LibraryEntry entry = userLibrary.getCache().get(anime.mal_id);
         boolean isFav = entry != null && entry.favorite;
         boolean isWatched = entry != null && entry.watched;
-        int rating = (entry != null) ? entry.rating : 0;
 
-        anime.rating = rating;
-        anime.seen = isWatched;
-
+        // Inicializar botones
         holder.favButton.setImageResource(isFav ? android.R.drawable.btn_star_big_on : android.R.drawable.btn_star_big_off);
-        holder.itemView.setBackgroundColor(isWatched ? context.getResources().getColor(android.R.color.darker_gray)
-                : context.getResources().getColor(android.R.color.white));
+        holder.buttonSeen.setImageResource(isWatched ? R.drawable.ojotachado : R.drawable.ojoabierto);
+        holder.itemView.setBackgroundColor(isWatched ?
+                context.getResources().getColor(android.R.color.darker_gray) :
+                context.getResources().getColor(android.R.color.white));
 
         // Toggle favorito
         holder.favButton.setOnClickListener(v -> {
-            userLibrary.setFavorite(anime, !isFav)
-                    .addOnSuccessListener(aVoid -> holder.favButton.setImageResource(!isFav ? android.R.drawable.btn_star_big_on : android.R.drawable.btn_star_big_off))
+            boolean newFavState = !(entry != null && entry.favorite);
+            userLibrary.setFavorite(anime, newFavState)
+                    .addOnSuccessListener(aVoid -> {
+                        if (entry != null) entry.favorite = newFavState;
+                        holder.favButton.setImageResource(newFavState ? android.R.drawable.btn_star_big_on
+                                : android.R.drawable.btn_star_big_off);
+                    })
                     .addOnFailureListener(e -> Toast.makeText(context, "Error al cambiar favorito", Toast.LENGTH_SHORT).show());
+        });
+
+        // Toggle visto/no visto
+        holder.buttonSeen.setOnClickListener(v -> {
+            boolean newWatched = !(entry != null && entry.watched);
+            userLibrary.setWatched(anime, newWatched)
+                    .addOnSuccessListener(aVoid -> {
+                        if (entry != null) entry.watched = newWatched;
+                        holder.buttonSeen.setImageResource(newWatched ? R.drawable.ojotachado : R.drawable.ojoabierto);
+                        holder.itemView.setBackgroundColor(newWatched ?
+                                context.getResources().getColor(android.R.color.darker_gray) :
+                                context.getResources().getColor(android.R.color.white));
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(context, "Error al cambiar estado visto", Toast.LENGTH_SHORT).show());
         });
 
         // Click en item → Rating
         holder.itemView.setOnClickListener(v -> {
             View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_anime, null);
             RatingBar ratingBar = dialogView.findViewById(R.id.ratingBar);
+            int rating = (entry != null) ? entry.rating : 0;
             ratingBar.setRating(rating);
 
             ratingBar.setOnRatingBarChangeListener((rb, r, fromUser) -> {
                 if (!fromUser) return;
-                if (r == anime.rating) {
-                    anime.rating = 0;
-                    anime.seen = false;
-                    rb.setRating(0);
-                } else {
-                    anime.rating = (int) r;
-                    anime.seen = r > 0;
-                }
+                anime.rating = (int) r;
+                anime.seen = r > 0;
             });
 
             new AlertDialog.Builder(context)
@@ -94,24 +108,43 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
                     .setPositiveButton("Guardar", (dialog, which) -> {
                         userLibrary.setRating(anime, anime.rating)
                                 .addOnSuccessListener(aVoid -> userLibrary.setWatched(anime, anime.seen)
-                                        .addOnSuccessListener(aVoid1 -> holder.itemView.setBackgroundColor(anime.seen ?
-                                                context.getResources().getColor(android.R.color.darker_gray) :
-                                                context.getResources().getColor(android.R.color.white))))
+                                        .addOnSuccessListener(aVoid1 -> {
+                                            holder.itemView.setBackgroundColor(anime.seen ?
+                                                    context.getResources().getColor(android.R.color.darker_gray) :
+                                                    context.getResources().getColor(android.R.color.white));
+                                            holder.buttonSeen.setImageResource(anime.seen ? R.drawable.ojotachado : R.drawable.ojoabierto);
+                                        }))
                                 .addOnFailureListener(e -> Toast.makeText(context, "Error al guardar rating", Toast.LENGTH_SHORT).show());
                     })
                     .setNegativeButton("Cancelar", null)
                     .show();
         });
+
+        // Reset
+        holder.buttonReset.setOnClickListener(v -> {
+            if (entry != null) {
+                userLibrary.setFavorite(anime, false);
+                userLibrary.setWatched(anime, false);
+                userLibrary.setRating(anime, 0);
+            }
+            holder.favButton.setImageResource(android.R.drawable.btn_star_big_off);
+            holder.buttonSeen.setImageResource(R.drawable.ojoabierto);
+            holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.white));
+            Toast.makeText(context, "Anime reset", Toast.LENGTH_SHORT).show();
+        });
     }
+
 
     @Override
     public int getItemCount() {
         return animeList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView title, synopsis;
         ImageView image, favButton;
+        ImageButton buttonReset;
+        ImageButton buttonSeen;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -119,6 +152,8 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
             synopsis = itemView.findViewById(R.id.animeSynopsis);
             image = itemView.findViewById(R.id.animeImage);
             favButton = itemView.findViewById(R.id.favButton);
+            buttonReset = itemView.findViewById(R.id.buttonReset);
+            buttonSeen = itemView.findViewById(R.id.buttonSeen);
         }
     }
 }

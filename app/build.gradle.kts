@@ -45,7 +45,11 @@ dependencies {
     implementation(libs.com.google.firebase.firebase.auth.v2211)
     implementation(libs.play.services.auth)
     implementation(libs.firebase.firestore)
+    implementation (libs.material.v190)
+    implementation (libs.firebase.appcheck.playintegrity)
+
     implementation(libs.recyclerview)
+    implementation(libs.firebase.storage)
     annotationProcessor(libs.compiler)
     implementation(libs.appcompat)
     implementation(libs.material)

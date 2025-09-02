@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -17,9 +16,13 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.firebase.appcheck.FirebaseAppCheck;
+import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory;
 
 import com.bumptech.glide.Glide;
 import com.example.watchguide.models.ActivityItem;
@@ -40,7 +43,9 @@ import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -64,6 +69,8 @@ public class MainActivity extends AppCompatActivity {
     private String currentUid;
     private List<ActivityItem> feedList = new ArrayList<>();
     private FirestoreFollowManager followManager;
+    private int activeGenreId = -1; // -1 significa que no hay filtro activo
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +84,11 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Log.d("FirebaseCheck", "Firebase está conectado correctamente");
         }
+        FirebaseApp.initializeApp(this);
+        FirebaseAppCheck firebaseAppCheck = FirebaseAppCheck.getInstance();
+        firebaseAppCheck.installAppCheckProviderFactory(
+                PlayIntegrityAppCheckProviderFactory.getInstance()
+        );
 
         currentUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         followManager = new FirestoreFollowManager(currentUid);
@@ -186,34 +198,50 @@ public class MainActivity extends AppCompatActivity {
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
-            String displayName = user.getDisplayName();
             String email = user.getEmail();
             String photoUrl = user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : null;
 
-            // ✅ Guardar/actualizar en Firestore
             FirebaseFirestore db = FirebaseFirestore.getInstance();
-            db.collection("users").document(uid)
-                    .update(
-                            "username", displayName,
-                            "email", email,
-                            "photoURL", photoUrl
-                    )
-                    .addOnSuccessListener(aVoid -> Log.d("FirestoreUser", "Perfil actualizado correctamente"))
-                    .addOnFailureListener(e -> {
-                        Log.w("FirestoreUser", "El documento no existía, creando uno nuevo...");
-                        // En caso de que no exista aún el documento
-                        java.util.Map<String, Object> userMap = new java.util.HashMap<>();
-                        userMap.put("username", displayName);
-                        userMap.put("email", email);
-                        userMap.put("photoURL", photoUrl);
-                        db.collection("users").document(uid).set(userMap);
+            db.collection("users").document(uid).get()
+                    .addOnSuccessListener(doc -> {
+                        if (!doc.exists()) {
+                            // primera vez -> usamos el nombre de Google
+                            String googleName = user.getDisplayName();
+                            Map<String, Object> userMap = new HashMap<>();
+                            userMap.put("username", googleName);
+                            userMap.put("email", email);
+                            userMap.put("photoURL", photoUrl);
+                            db.collection("users").document(uid).set(userMap);
+
+                            headerTitle.setText(googleName); // mostramos el inicial
+                        } else {
+                            // leemos SIEMPRE el username de Firestore
+                            String savedName = doc.getString("username");
+                            headerTitle.setText(savedName != null ? savedName : "Usuario");
+
+                            // actualizamos solo email/foto
+                            db.collection("users").document(uid).update(
+                                    "email", email,
+                                    "photoURL", photoUrl
+                            );
+                        }
+
+                        // cargar la foto
+                        if (photoUrl != null) {
+                            Glide.with(this)
+                                    .load(photoUrl)
+                                    .placeholder(R.drawable.circle_background)
+                                    .into(headerImage);
+                        } else {
+                            headerImage.setImageResource(R.drawable.circle_background);
+                        }
                     });
 
-            // 👇 Drawer UI
-            headerTitle.setText(displayName);
+
             headerTitle.setOnClickListener(v -> {
-                openProfile();
+                changeName();
             });
+
 
             if (photoUrl != null) {
                 Glide.with(this)
@@ -233,11 +261,51 @@ public class MainActivity extends AppCompatActivity {
         toggle.syncState();
 
 
+        ImageButton btnFilter = findViewById(R.id.btnFilter);
+
+        btnFilter.setOnClickListener(v -> {
+            String[] categories = {
+                    "Remove Filter","Action", "Adventure", "Cars", "Comedy", "Dementia", "Demons", "Mystery",
+                    "Drama", "Ecchi", "Fantasy", "Game", "Hentai", "Historical", "Horror", "Kids",
+                    "Magic", "Martial Arts", "Mecha", "Music", "Parody", "Samurai", "Romance",
+                    "School", "Sci-Fi", "Shoujo", "Shoujo Ai", "Shounen", "Shounen Ai", "Space",
+                    "Sports", "Super Power", "Vampires", "Yaoi", "Yuri", "Harem", "Slice of Life",
+                    "Supernatural", "Military", "Police", "Psychological", "Thriller", "Seinen", "Josei",
+                    "Remove filter"
+            };
+            int[] categoryIds = {
+                    0,1, 2, 3, 4, 5, 6, 7,
+                    8, 9, 10, 11, 12, 13, 14, 15,
+                    16, 17, 18, 19, 20, 21, 22,
+                    23, 24, 25, 26, 27, 28, 29,
+                    30, 31, 32, 33, 34, 35, 36,
+                    37, 38, 39, 40, 41, 42, 43,
+                    -1
+            };
+
+            new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("Select category")
+                    .setItems(categories, (dialog, which) -> {
+                        activeGenreId = categoryIds[which];
+                        if (activeGenreId == -1 ||activeGenreId == 0 ) {
+                            Toast.makeText(MainActivity.this, "Filter removed", Toast.LENGTH_SHORT).show();
+                            btnFilter.setImageResource(R.drawable.filtro);
+                        } else {
+                            searchAnimeByGenre(activeGenreId);
+                            btnFilter.setImageResource(R.drawable.filtroon);
+                        }
+                    })
+                    .show();
+        });
+
+
+
         navigationView.setNavigationItemSelectedListener(item -> {
 
-            if (item.getItemId() == R.id.profileName|| item.getItemId() == R.id.profileImage||item.getItemId() == R.id.nav_profile) {
+            if (item.getItemId() == R.id.nav_profile) {
                 openProfile();
             }
+
             if (item.getItemId() == R.id.nav_Info) {
                 new AlertDialog.Builder(this)
                         .setTitle("About")
@@ -277,13 +345,104 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void changeName() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) return;
+
+        String uid = user.getUid();
+
+        // Crear un EditText dentro de un AlertDialog
+        EditText input = new EditText(this);
+        input.setHint("Nuevo nombre de usuario");
+
+        new AlertDialog.Builder(this)
+                .setTitle("Cambiar nombre")
+                .setMessage("Introduce tu nuevo nombre de usuario:")
+                .setView(input)
+                .setPositiveButton("Guardar", (dialog, which) -> {
+                    String newName = input.getText().toString().trim();
+
+                    if (newName.isEmpty()) {
+                        Toast.makeText(this, "El nombre no puede estar vacío", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Guardar en Firestore
+                    FirebaseFirestore.getInstance()
+                            .collection("users")
+                            .document(uid)
+                            .update("username", newName)
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(this, "Nombre actualizado", Toast.LENGTH_SHORT).show();
+
+                                // Actualizar el Navigation Drawer
+                                NavigationView navigationView = findViewById(R.id.navigationView);
+                                View headerView = navigationView.getHeaderView(0);
+                                TextView headerName = headerView.findViewById(R.id.headerTitle);
+
+                                headerName.setText(newName);
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(this, "Error al actualizar nombre", Toast.LENGTH_SHORT).show();
+                            });
+                })
+                .setNegativeButton("Cancelar", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+
+
     private void openProfile() {
         Intent intent = new Intent(this, ProfileActivity.class);
         startActivity(intent);
     }
 
+
     private void searchAnime(String query) {
-        api.searchAnime(query).enqueue(new Callback<AnimeResponse>() {
+        if (activeGenreId != -1) {
+            // Si hay un filtro activo, buscar por género Y query
+            api.searchAnimeWithGenre(query, activeGenreId).enqueue(new Callback<AnimeResponse>() {
+                @Override
+                public void onResponse(Call<AnimeResponse> call, Response<AnimeResponse> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        animeList.clear();
+                        animeList.addAll(response.body().data);
+                        adapter.notifyDataSetChanged();
+                    } else {
+                        Toast.makeText(MainActivity.this, "No results", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<AnimeResponse> call, Throwable t) {
+                    Toast.makeText(MainActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            // Búsqueda normal sin filtro
+            api.searchAnime(query).enqueue(new Callback<AnimeResponse>() {
+                @Override
+                public void onResponse(Call<AnimeResponse> call, Response<AnimeResponse> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        animeList.clear();
+                        animeList.addAll(response.body().data);
+                        adapter.notifyDataSetChanged();
+                    } else {
+                        Toast.makeText(MainActivity.this, "No results", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<AnimeResponse> call, Throwable t) {
+                    Toast.makeText(MainActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+
+    private void searchAnimeByGenre(int genreId) {
+        api.getAnimeByGenre(genreId).enqueue(new Callback<AnimeResponse>() {
             @Override
             public void onResponse(Call<AnimeResponse> call, Response<AnimeResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -291,7 +450,7 @@ public class MainActivity extends AppCompatActivity {
                     animeList.addAll(response.body().data);
                     adapter.notifyDataSetChanged();
                 } else {
-                    Toast.makeText(MainActivity.this, "No results", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "No results for this category", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -345,6 +504,8 @@ public class MainActivity extends AppCompatActivity {
         List<UserItem> userList = new ArrayList<>();
         UserAdapter userAdapter = new UserAdapter(userList, this, followManager);
         recyclerViewUsers.setAdapter(userAdapter);
+
+        // 🔹 Cargar los que sigues
         FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(currentUid)
@@ -357,51 +518,39 @@ public class MainActivity extends AppCompatActivity {
                         String username = doc.getString("username");
                         if (username != null) userList.add(new UserItem(fUid, username));
                     }
-                    userAdapter.notifyDataSetChanged(); // Mostrar de inmediato los que sigues
-                });
-        // Buscar usuarios por nombre
-        editSearch.addTextChangedListener(new android.text.TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-
-            @Override
-            public void afterTextChanged(android.text.Editable s) {
-                String query = s.toString().trim();
-                Log.d("FriendsSearch", "Users with query: " + query);
-                if (query.isEmpty()) {
-                    userList.clear();
                     userAdapter.notifyDataSetChanged();
-                    return;
-                }
+                });
+
+        // 🔹 Buscar usuarios localmente (case-insensitive)
+        editSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String query = s.toString().trim().toLowerCase();
 
                 FirebaseFirestore.getInstance()
                         .collection("users")
-                        .whereGreaterThanOrEqualTo("username", query)
-                        .whereLessThanOrEqualTo("username", query + "\uf8ff")
                         .get()
                         .addOnSuccessListener(snap -> {
-                            Log.d("FriendsSearch", "Documents found: " + snap.getDocuments().size());
                             userList.clear();
-                            for (var doc : snap.getDocuments()) {
-                                String uid = doc.getId();
+                            for (DocumentSnapshot doc : snap.getDocuments()) {
+                                String fUid = doc.getId();
                                 String username = doc.getString("username");
-                                Log.d("FriendsSearch", "User: " + username + " UID: " + uid);
-
-                                if (uid.equals(currentUid)) continue; // no mostrar a ti mismo
-                                if (username != null) userList.add(new UserItem(uid, username));
+                                if (username == null || fUid.equals(currentUid)) continue;
+                                if (username.toLowerCase().contains(query)) {
+                                    userList.add(new UserItem(fUid, username));
+                                }
                             }
                             userAdapter.notifyDataSetChanged();
-                        }).addOnFailureListener(e -> {
-                            Log.e("FriendsSearch", "Error searching users: " + e.getMessage());
                         });
-                ;
             }
         });
+
 
         new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Add new Friends")
@@ -415,4 +564,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
     }
+
+
 }

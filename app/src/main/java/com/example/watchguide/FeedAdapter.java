@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.watchguide.models.ActivityItem;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -37,29 +38,40 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull FeedAdapter.ViewHolder holder, int position) {
         ActivityItem item = activityList.get(position);
 
-        String actionText;
-        switch (item.type) {
-            case "favorite_added":
-                actionText = item.userName + " has added \"" + item.animeTitle + "\" to favorites!";
-                break;
-            case "favorite_removed":
-                actionText = item.userName + " removed \"" + item.animeTitle + "\" from favorites!";
-                break;
-            case "rating":
-                actionText = item.userName + " has rated \"" + item.animeTitle + "\" with " + item.value + "⭐";
-                break;
-            case "watched":
-                actionText = item.userName + " has finished watching \"" + item.animeTitle + "\"";
-                break;
-            default:
-                actionText = item.userName + " did something with \"" + item.animeTitle + "\"";
-        }
+        // Obtener el username actualizado desde Firestore
+        FirebaseFirestore.getInstance().collection("users").document(item.userId)
+                .get().addOnSuccessListener(doc -> {
+                    String username = doc.getString("username");
+                    if (username == null) username = "Usuario";
 
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
-        String dateText = sdf.format(new Date(item.timestamp));
+                    String actionText = "";
+                    switch (item.type) {
+                        case "favorite_added":
+                            actionText = username + " has added \"" + item.animeTitle + "\" to favorites!";
+                            break;
+                        case "favorite_removed":
+                            actionText = username + " removed \"" + item.animeTitle + "\" from favorites!";
+                            break;
+                        case "rating":
+                            if (item.value == 0) {
+                                actionText = username + " did reset on \"" + item.animeTitle;
+                            } else {
+                                actionText = username + " has rated \"" + item.animeTitle + "\" with " + item.value + "⭐";
+                            }
+                            break;
+                        case "watched":
+                            actionText = username + " has finished watching \"" + item.animeTitle + "\"";
+                            break;
+                        default:
+                            actionText = username + " did something with \"" + item.animeTitle + "\"";
+                    }
 
-        holder.textAction.setText(actionText);
-        holder.textDate.setText(dateText);
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+                    String dateText = sdf.format(new Date(item.timestamp));
+
+                    holder.textAction.setText(actionText);
+                    holder.textDate.setText(dateText);
+                });
     }
 
     @Override

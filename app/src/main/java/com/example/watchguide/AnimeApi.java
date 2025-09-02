@@ -9,4 +9,13 @@ import retrofit2.http.Query;
 public interface AnimeApi {
     @GET("anime")
     Call<AnimeResponse> searchAnime(@Query("q") String query);
+
+    @GET("anime")
+    Call<AnimeResponse> getAnimeByGenre(@Query("genres") int genreId);
+
+    @GET("anime")
+    Call<AnimeResponse> searchAnimeWithGenre(@Query("q") String query, @Query("genres") int genreId);
+
+
+
 }
