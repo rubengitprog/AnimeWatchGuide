@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
@@ -17,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.watchguide.models.Anime;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 import java.util.Map;
@@ -50,7 +52,20 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
         if (anime.images != null && anime.images.jpg != null) {
             Glide.with(context).load(anime.images.jpg.image_url).into(holder.image);
         }
+        holder.averageRating.setText("Nota: -"); // default
 
+        FirebaseFirestore.getInstance()
+                .collection("anime")
+                .document(String.valueOf(anime.mal_id))
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists() && doc.contains("averageRating")) {
+                        double avg = doc.getDouble("averageRating");
+                        holder.averageRating.setText("Nota: " + String.format("%.1f", avg + "⭐"));
+                    } else {
+                        holder.averageRating.setText("Nota: -");
+                    }
+                });
         // Obtener estado real desde la cache de Firestore
         LibraryEntry entry = userLibrary.getCache().get(anime.mal_id);
         boolean isFav = entry != null && entry.favorite;
@@ -92,29 +107,42 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
         // Click en item → Rating
         holder.itemView.setOnClickListener(v -> {
             View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_anime, null);
-            RatingBar ratingBar = dialogView.findViewById(R.id.ratingBar);
-            int rating = (entry != null) ? entry.rating : 0;
-            ratingBar.setRating(rating);
+            EditText inputRating = dialogView.findViewById(R.id.inputRating);
 
-            ratingBar.setOnRatingBarChangeListener((rb, r, fromUser) -> {
-                if (!fromUser) return;
-                anime.rating = (int) r;
-                anime.seen = r > 0;
-            });
+            // Si ya tiene una valoración guardada, mostrarla en el EditText
+            if (entry != null && entry.rating > 0) {
+                inputRating.setText(String.valueOf(entry.rating));
+            }
 
             new AlertDialog.Builder(context)
                     .setTitle(anime.title)
                     .setView(dialogView)
                     .setPositiveButton("Guardar", (dialog, which) -> {
-                        userLibrary.setRating(anime, anime.rating)
-                                .addOnSuccessListener(aVoid -> userLibrary.setWatched(anime, anime.seen)
-                                        .addOnSuccessListener(aVoid1 -> {
-                                            holder.itemView.setBackgroundColor(anime.seen ?
-                                                    context.getResources().getColor(android.R.color.darker_gray) :
-                                                    context.getResources().getColor(android.R.color.white));
-                                            holder.buttonSeen.setImageResource(anime.seen ? R.drawable.ojotachado : R.drawable.ojoabierto);
-                                        }))
-                                .addOnFailureListener(e -> Toast.makeText(context, "Error al guardar rating", Toast.LENGTH_SHORT).show());
+                        String valor = inputRating.getText().toString().trim();
+                        if (!valor.isEmpty()) {
+                            try {
+                                float rating = Float.parseFloat(valor);
+                                if (rating >= 1.0f && rating <= 10.0f) {
+                                    anime.rating = rating;   // ahora es float, no int
+                                    anime.seen = rating > 0;
+
+                                    userLibrary.setRating(anime, anime.rating)
+                                            .addOnSuccessListener(aVoid -> userLibrary.setWatched(anime, anime.seen)
+                                                    .addOnSuccessListener(aVoid1 -> {
+                                                        holder.itemView.setBackgroundColor(anime.seen ?
+                                                                context.getResources().getColor(android.R.color.darker_gray) :
+                                                                context.getResources().getColor(android.R.color.white));
+                                                        holder.buttonSeen.setImageResource(anime.seen ? R.drawable.ojotachado : R.drawable.ojoabierto);
+                                                    }))
+                                            .addOnFailureListener(e ->
+                                                    Toast.makeText(context, "Error al guardar rating", Toast.LENGTH_SHORT).show());
+                                } else {
+                                    Toast.makeText(context, "La nota debe estar entre 1.0 y 10.0", Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (NumberFormatException e) {
+                                Toast.makeText(context, "Introduce un número válido", Toast.LENGTH_SHORT).show();
+                            }
+                        }
                     })
                     .setNegativeButton("Cancelar", null)
                     .show();
@@ -145,6 +173,7 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
         ImageView image, favButton;
         ImageButton buttonReset;
         ImageButton buttonSeen;
+        TextView averageRating;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -154,6 +183,7 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
             favButton = itemView.findViewById(R.id.favButton);
             buttonReset = itemView.findViewById(R.id.buttonReset);
             buttonSeen = itemView.findViewById(R.id.buttonSeen);
+            averageRating = itemView.findViewById(R.id.animeAverageRating);
         }
     }
 }

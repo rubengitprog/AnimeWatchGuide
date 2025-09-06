@@ -1,7 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="180dp"
-    android:background="#002A38"
+    android:background="?attr/colorCard"
     android:gravity="center"
     android:orientation="vertical"
     android:padding="16dp">
@@ -15,7 +15,7 @@
         android:background="@drawable/circle_shape"
         android:clipToOutline="true"
         android:scaleType="centerCrop"
-        android:src="@drawable/aaa" />
+        android:src="@drawable/onepiece_main" />
 
 
     <LinearLayout
@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="Username"
-        android:textColor="@android:color/white"
+        android:textColor="@android:color/black"
         android:textSize="18sp"
         android:textStyle="bold" />
     <ImageButton

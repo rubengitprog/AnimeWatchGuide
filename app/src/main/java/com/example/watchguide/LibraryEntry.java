@@ -4,7 +4,7 @@ public class LibraryEntry {
     public String title;
     public String image_url;
     public boolean favorite;
-    public int rating;
+    public float rating;
     public boolean watched;
     public long updatedAt;
 

@@ -7,7 +7,7 @@ public class Anime {
     public Images images;
 
     // Campos locales (no vienen de la API)
-    public transient int rating = 0;        // de 0 a 5 estrellas
+    public transient float rating = 0f;        // de 0 a 5 estrellas
     public transient boolean seen = false; // si el usuario lo marcó como visto
 
     public static class Images {
@@ -25,5 +25,6 @@ public class Anime {
             }
         }
     }
+
 
 }

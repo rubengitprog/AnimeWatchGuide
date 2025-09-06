@@ -28,6 +28,15 @@
         android:textSize="14sp"
         android:layout_marginBottom="8dp" />
 
+    <TextView
+        android:id="@+id/animeAverageRating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nota: - ⭐"
+        android:textSize="14sp"
+        android:textStyle="italic"
+        android:layout_marginTop="4dp"/>
+
     <!-- Botones a la derecha -->
     <LinearLayout
         android:layout_width="match_parent"

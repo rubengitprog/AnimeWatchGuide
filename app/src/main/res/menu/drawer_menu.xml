@@ -11,6 +11,10 @@
         android:icon="@drawable/setting"
         />
     <item
+        android:id="@+id/nav_theme"
+        android:title="Personalizar Tema"
+        android:icon="@drawable/paleta"/>
+    <item
         android:id="@+id/nav_Info"
         android:title="Info"
         android:icon="@drawable/info"

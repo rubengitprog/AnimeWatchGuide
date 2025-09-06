@@ -6,7 +6,7 @@ public class ActivityItem {
     public int animeId;
     public String animeTitle;
     public String type; // "favorite", "rating", "watched"
-    public int value;
+    public float value;
     public long timestamp;
 
     public ActivityItem() {

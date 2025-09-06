@@ -2,4 +2,11 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="naruto_naranja">#FF9800</color> <!-- traje -->
+    <color name="naruto_oscuro">#E65100</color> <!-- variante más oscura -->
+    <color name="naruto_azul">#1565C0</color> <!-- protector de la frente -->
+    <color name="naruto_negro">#212121</color> <!-- detalles oscuros -->
+    <color name="naruto_blanco">#FFFFFF</color> <!-- contraste para texto -->
+    <color name="naruto_gris_claro">#F5F5F5</color>
+
 </resources>

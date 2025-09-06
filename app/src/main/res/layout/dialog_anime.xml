@@ -13,11 +13,12 @@
         android:textSize="18sp"
         android:textStyle="bold" />
 
-    <RatingBar
-        android:id="@+id/ratingBar"
-        android:layout_width="wrap_content"
+    <EditText
+        android:id="@+id/inputRating"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:stepSize="1.0" />
+        android:inputType="numberDecimal"
+        android:hint="Introduce tu valoración (1.0 - 10.0)" />
 
 
 

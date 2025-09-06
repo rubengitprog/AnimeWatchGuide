@@ -1,6 +1,7 @@
 package com.example.watchguide;
 
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -37,7 +38,7 @@ public class ProfileActivity extends AppCompatActivity {
     private ImageView profileImage;
     private TextView profileName, followersCount, followingCount;
     private TabLayout tabLayout;
-    private ImageButton imageButton;
+    private ImageView imageBanner;
 
     private String uid;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -46,8 +47,23 @@ public class ProfileActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // 🔹 Cargar tema guardado
+        int temaGuardado = getSharedPreferences("MisTemas", MODE_PRIVATE)
+                .getInt("tema", R.style.TemaNaruto);
+        setTheme(temaGuardado);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+
+        // (Opcional) Si quieres que también cambie la imagen principal según el tema:
+        ImageView imagenBanner = findViewById(R.id.secondaryImage);
+        int[] attrs = new int[]{R.attr.secondaryImage};
+        TypedArray ta = obtainStyledAttributes(attrs);
+        int imagenResId = ta.getResourceId(0, 0);
+        ta.recycle();
+        if (imagenResId != 0) {
+            imagenBanner.setImageResource(imagenResId);
+        }
 
         uid = getIntent().getStringExtra("uid");
         if (uid == null) {
@@ -59,7 +75,7 @@ public class ProfileActivity extends AppCompatActivity {
         followersCount = findViewById(R.id.followersCount);
         followingCount = findViewById(R.id.followingCount);
         tabLayout = findViewById(R.id.tabLayout);
-        imageButton = findViewById(R.id.imageButton);
+
 
 
 
@@ -107,12 +123,10 @@ public class ProfileActivity extends AppCompatActivity {
                 }
 
                 if (bannerUrl != null && !bannerUrl.isEmpty()) {
-                    Glide.with(this).load(bannerUrl).into(imageButton);
-                } else {
-                    imageButton.setImageResource(R.drawable.piece); // banner por defecto
+                    Glide.with(this).load(bannerUrl).into(imageBanner);
                 }
             }
-        }).addOnFailureListener(e -> imageButton.setImageResource(R.drawable.piece));
+        }).addOnFailureListener(e -> imageBanner.setImageResource(R.drawable.piece));
     }
 
 

@@ -1,30 +1,24 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:background="#6B6666"
-    >
+    android:background="?attr/colorBackground">
 
     <!-- Imagen de fondo -->
-    <ImageButton
-        android:id="@+id/imageButton"
+    <ImageView
+        android:id="@+id/secondaryImage"
         android:layout_width="match_parent"
         android:layout_height="275dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/piece"
-        />
+        android:src="?attr/secondaryImage" />
 
-    <!-- Contenido por encima -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:gravity="top"
+        android:gravity="top">
 
-        android:clipToPadding="false">
-
-        <!-- Imagen de usuario -->
         <ImageView
             android:id="@+id/profileImage"
             android:layout_width="120dp"
@@ -32,11 +26,10 @@
             android:layout_gravity="center"
             android:layout_marginTop="60dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/aaa"
+            android:src="@drawable/onepiece_main"
             android:background="@drawable/circle_shape"
             android:clipToOutline="true" />
 
-        <!-- Nombre -->
         <TextView
             android:id="@+id/profileName"
             android:layout_width="wrap_content"
@@ -44,12 +37,11 @@
             android:text="Username"
             android:textSize="25sp"
             android:textStyle="bold"
-            android:textColor="@android:color/black"
-            android:background="#80A1C2E8"
+            android:textColor="@color/black"
+            android:background="?attr/colorCard"
             android:layout_gravity="center"
             android:layout_marginTop="8dp" />
 
-        <!-- Followers / Following -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -63,40 +55,34 @@
                 android:layout_height="wrap_content"
                 android:text="0 Followers"
                 android:textStyle="bold"
-                android:textSize="18dp"
-                android:textColor="@android:color/black"
-                android:layout_marginEnd="24dp"
-                android:background="#80A1C2E8"/>
+                android:textSize="18sp"
+                android:textColor="?attr/colorTextPrimary"
+                android:background="?attr/colorCard"
+                android:layout_marginEnd="24dp"/>
 
             <TextView
                 android:id="@+id/followingCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0 Following"
-                android:textSize="18dp"
+                android:textSize="18sp"
                 android:textStyle="bold"
-                android:background="#A1C2E8"
-                android:textColor="@android:color/black" />
+                android:textColor="?attr/colorTextPrimary"
+                android:background="?attr/colorCard"/>
         </LinearLayout>
 
-        <!-- TabLayout -->
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:background="@android:color/background_dark"
-            app:tabTextColor="@color/white"
+            android:background="?attr/colorCard"
+            app:tabTextColor="?attr/colorTextSecondary"/>
 
-            />
-
-        <!-- Contenedor de los tabs -->
         <FrameLayout
             android:id="@+id/tabContainer"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1" />
-
+            android:layout_weight="1"/>
     </LinearLayout>
-
 </FrameLayout>
