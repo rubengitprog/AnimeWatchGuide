@@ -168,6 +168,7 @@ public class FirestoreUserLibrary {
                 .collection("activities")
                 .add(activity);
 
+
         return task;
     }
 

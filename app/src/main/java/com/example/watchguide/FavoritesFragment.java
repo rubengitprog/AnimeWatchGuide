@@ -38,12 +38,32 @@ public class FavoritesFragment extends Fragment {
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
 
         adapter = new AnimeImageAdapter(animeItems, item -> {
-            // Abrir Crunchyroll al pulsar el anime
-            if (item != null && item.getCrunchyrollUrl() != null) {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(item.getCrunchyrollUrl()));
-                startActivity(browserIntent);
+            if (item != null) {
+                // Crear diálogo para confirmar eliminación
+                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                        .setTitle(item.getTitle())
+                        .setMessage("Do you want to remove this anime from your favorites?")
+                        .setPositiveButton("Remove", (dialog, which) -> {
+                            // Eliminar de Firestore
+                            FirebaseFirestore.getInstance()
+                                    .collection("users").document(uid)
+                                    .collection("library")
+                                    .whereEqualTo("title", item.getTitle())
+                                    .get()
+                                    .addOnSuccessListener(snap -> {
+                                        for (DocumentSnapshot doc : snap.getDocuments()) {
+                                            doc.getReference().update("favorite", false);
+                                        }
+                                        // Quitar de la lista local y actualizar RecyclerView
+                                        animeItems.remove(item);
+                                        adapter.notifyDataSetChanged();
+                                    });
+                        })
+                        .setNegativeButton("Cancelar", null)
+                        .show();
             }
         });
+
         recyclerView.setAdapter(adapter);
 
         loadFavorites();

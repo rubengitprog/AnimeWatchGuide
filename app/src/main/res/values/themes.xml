@@ -1,16 +1,32 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme -->
-    <style name="Base.Theme.WatchGuide" parent="Theme.Material3.DayNight.NoActionBar" />
+    <!-- Tema base -->
+    <style name="Base.Theme.WatchGuide" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Colores Material 3 por defecto -->
+        <item name="colorPrimary">@color/black</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+        <item name="colorSecondary">@color/black</item>
+        <item name="colorTextBlackAndWhite">@color/black</item>
+        <!-- Valores por defecto para tus atributos personalizados -->
+        <item name="colorBackground">@android:color/white</item>
+        <item name="colorCard">@android:color/darker_gray</item>
+        <item name="colorTextPrimary">@android:color/black</item>
+        <item name="colorTextSecondary">@android:color/darker_gray</item>
+        <item name="imagenMain">@drawable/ic_launcher_foreground</item>
+        <item name="secondaryImage">@drawable/ic_launcher_background</item>
+    </style>
+
+    <!-- Tema principal -->
     <style name="Theme.WatchGuide" parent="Base.Theme.WatchGuide" />
 
     <!-- Naruto -->
-    <style name="TemaNaruto" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="TemaNaruto" parent="Base.Theme.WatchGuide">
         <item name="colorPrimary">#FF9800</item> <!-- naranja traje -->
-        <item name="colorPrimaryVariant">#E65100</item>
+
         <item name="colorSecondary">#1976D2</item> <!-- azul protector -->
         <item name="colorOnPrimary">#FFFFFF</item>
-
+        <item name="colorTextBlackAndWhite">@color/black</item>
         <item name="colorBackground">#FFF3E0</item> <!-- beige cálido -->
         <item name="colorCard">#FFE0B2</item>
         <item name="colorTextPrimary">#212121</item>
@@ -20,12 +36,12 @@
     </style>
 
     <!-- One Piece -->
-    <style name="TemaOnePiece" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="TemaOnePiece" parent="Base.Theme.WatchGuide">
         <item name="colorPrimary">#2196F3</item> <!-- azul mar -->
-        <item name="colorPrimaryVariant">#0D47A1</item>
+
         <item name="colorSecondary">#FFD600</item> <!-- amarillo del sombrero -->
         <item name="colorOnPrimary">#FFFFFF</item>
-
+        <item name="colorTextBlackAndWhite">@color/black</item>
         <item name="colorBackground">#E1F5FE</item> <!-- azul cielo claro -->
         <item name="colorCard">#B3E5FC</item>
         <item name="colorTextPrimary">#0D47A1</item>
@@ -35,9 +51,9 @@
     </style>
 
     <!-- Dragon Ball -->
-    <style name="TemaDragonBall" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="TemaDragonBall" parent="Base.Theme.WatchGuide">
         <item name="colorPrimary">#F57C00</item> <!-- naranja Goku -->
-        <item name="colorPrimaryVariant">#E65100</item>
+        <item name="colorTextBlackAndWhite">@color/black</item>
         <item name="colorSecondary">#0288D1</item> <!-- azul uniforme -->
         <item name="colorOnPrimary">#FFFFFF</item>
 
@@ -50,9 +66,9 @@
     </style>
 
     <!-- Bleach -->
-    <style name="TemaBleach" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="TemaBleach" parent="Base.Theme.WatchGuide">
         <item name="colorPrimary">#212121</item> <!-- negro shinigami -->
-        <item name="colorPrimaryVariant">#424242</item>
+        <item name="colorTextBlackAndWhite">@color/black</item>
         <item name="colorSecondary">#FF3D00</item> <!-- rojo zanpakuto -->
         <item name="colorOnPrimary">#FFFFFF</item>
 
@@ -65,9 +81,9 @@
     </style>
 
     <!-- Kimetsu no Yaiba -->
-    <style name="TemaKimetsu" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="TemaKimetsu" parent="Base.Theme.WatchGuide">
         <item name="colorPrimary">#2E7D32</item> <!-- verde haori Tanjiro -->
-        <item name="colorPrimaryVariant">#1B5E20</item>
+        <item name="colorTextBlackAndWhite">@color/black</item>
         <item name="colorSecondary">#C62828</item> <!-- rojo sangre -->
         <item name="colorOnPrimary">#FFFFFF</item>
 
@@ -80,12 +96,12 @@
     </style>
 
     <!-- Shingeki no Kyojin -->
-    <style name="TemaShingeki" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="TemaShingeki" parent="Base.Theme.WatchGuide">
         <item name="colorPrimary">#4E342E</item> <!-- marrón uniforme militar -->
-        <item name="colorPrimaryVariant">#3E2723</item>
+
         <item name="colorSecondary">#2E7D32</item> <!-- verde brigadas -->
         <item name="colorOnPrimary">#FFFFFF</item>
-
+        <item name="colorTextBlackAndWhite">@color/black</item>
         <item name="colorBackground">#EFEBE9</item> <!-- gris/beige murallas -->
         <item name="colorCard">#D7CCC8</item>
         <item name="colorTextPrimary">#212121</item>

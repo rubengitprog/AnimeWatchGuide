@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.os.Handler;
@@ -77,20 +78,30 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // 🔹 Aplica el tema guardado ANTES de setContentView
-        int temaGuardado = getSharedPreferences("MisTemas", MODE_PRIVATE)
-                .getInt("tema", R.style.TemaNaruto);
-        setTheme(temaGuardado);
 
+        SharedPreferences prefs = getSharedPreferences("MisTemas", MODE_PRIVATE);
+        int temaGuardado = prefs.getInt("tema", R.style.TemaOnePiece);
+
+
+        setTheme(temaGuardado); // 🔹 Aplicar antes de inflar layout
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-// Cambiar la imagen principal según el tema
+
+        // 8️⃣ Aplicar imagen principal dinámica según el tema
         ImageView imagenMain = findViewById(R.id.imageMain);
         int[] attrs = new int[]{R.attr.imagenMain};
         TypedArray ta = obtainStyledAttributes(attrs);
         int imagenResId = ta.getResourceId(0, 0);
         ta.recycle();
-        imagenMain.setImageResource(imagenResId);
+
+        if (imagenResId != 0) {
+            imagenMain.setImageResource(imagenResId);
+            Log.d("🌟ThemeDebug🌟", "Imagen principal cargada: " + imagenResId);
+        } else {
+            Log.d("🌟ThemeDebug🌟", "No se encontró drawable para imagenMain");
+        }
+
+        // 9️⃣ Escalar la imagen
         imagenMain.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
         FirebaseApp.initializeApp(this);

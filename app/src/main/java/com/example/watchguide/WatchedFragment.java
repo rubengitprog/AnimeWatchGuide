@@ -38,13 +38,33 @@ public class WatchedFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
 
-        // Adapter con listener para abrir Crunchyroll al pulsar
         adapter = new AnimeImageAdapter(animeItems, item -> {
-            if (item != null && item.getCrunchyrollUrl() != null) {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(item.getCrunchyrollUrl()));
-                startActivity(browserIntent);
+            if (item != null) {
+                // Crear diálogo para confirmar eliminación
+                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                        .setTitle(item.getTitle())
+                        .setMessage("Do you want to remove this anime from watched?")
+                        .setPositiveButton("Remove", (dialog, which) -> {
+                            // Eliminar de Firestore
+                            FirebaseFirestore.getInstance()
+                                    .collection("users").document(uid)
+                                    .collection("library")
+                                    .whereEqualTo("title", item.getTitle())
+                                    .get()
+                                    .addOnSuccessListener(snap -> {
+                                        for (DocumentSnapshot doc : snap.getDocuments()) {
+                                            doc.getReference().update("watched", false);
+                                        }
+                                        // Quitar de la lista local y actualizar RecyclerView
+                                        animeItems.remove(item);
+                                        adapter.notifyDataSetChanged();
+                                    });
+                        })
+                        .setNegativeButton("Cancelar", null)
+                        .show();
             }
         });
+
         recyclerView.setAdapter(adapter);
 
         loadWatched(); // Cargar datos de Firestore

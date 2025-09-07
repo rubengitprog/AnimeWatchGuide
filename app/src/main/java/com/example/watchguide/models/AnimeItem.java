@@ -14,6 +14,9 @@ public class AnimeItem {
         String query = title.trim().replace(" ", "+");
         return "https://www.crunchyroll.com/es-es/search?q=" + query;
     }
+    public String getTitle(){
+        return title;
+    }
 
 }
 

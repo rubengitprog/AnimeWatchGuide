@@ -1,7 +1,101 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+
+    <!-- Base dark theme -->
     <style name="Base.Theme.WatchGuide" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="colorPrimary">#121212</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSecondary">#BB86FC</item>
+        <item name="colorBackground">#000000</item>
+        <item name="colorCard">#1E1E1E</item>
+        <item name="colorTextBlackAndWhite">@color/white</item>
+        <item name="colorTextPrimary">#FFFFFF</item>
+        <item name="colorTextSecondary">#B3B3B3</item>
+        <item name="imagenMain">@drawable/ic_launcher_foreground</item>
+        <item name="secondaryImage">@drawable/ic_launcher_background</item>
     </style>
+
+    <!-- Naruto dark -->
+    <style name="TemaNaruto" parent="Base.Theme.WatchGuide">
+        <item name="colorPrimary">#E65100</item>
+        <item name="colorSecondary">#0D47A1</item>
+        <item name="colorTextBlackAndWhite">@color/white</item>
+
+        <item name="colorBackground">#1A1A1A</item>
+        <item name="colorCard">#2E2E2E</item>
+        <item name="colorTextPrimary">#FFFFFF</item>
+        <item name="colorTextSecondary">#B0B0B0</item>
+        <item name="imagenMain">@drawable/naruto_main</item>
+        <item name="secondaryImage">@drawable/naruto_secondary</item>
+    </style>
+
+    <!-- One Piece dark -->
+    <style name="TemaOnePiece" parent="Base.Theme.WatchGuide">
+        <item name="colorPrimary">#0D47A1</item>
+        <item name="colorSecondary">#FFD600</item>
+        <item name="colorBackground">#121212</item>
+        <item name="colorCard">#1A237E</item>
+        <item name="colorTextPrimary">#FFFFFF</item>
+        <item name="colorTextBlackAndWhite">@color/white</item>
+
+        <item name="colorTextSecondary">#B3B3B3</item>
+        <item name="imagenMain">@drawable/onepiece_main</item>
+        <item name="secondaryImage">@drawable/piece</item>
+    </style>
+
+    <!-- Dragon Ball dark -->
+    <style name="TemaDragonBall" parent="Base.Theme.WatchGuide">
+        <item name="colorPrimary">#F57C00</item>
+        <item name="colorSecondary">#0288D1</item>
+        <item name="colorBackground">#1C1C1C</item>
+        <item name="colorCard">#333333</item>
+        <item name="colorTextPrimary">#FFFFFF</item>
+        <item name="colorTextBlackAndWhite">@color/white</item>
+
+        <item name="colorTextSecondary">#B0B0B0</item>
+        <item name="imagenMain">@drawable/dragon_main</item>
+        <item name="secondaryImage">@drawable/dragon_secondary</item>
+    </style>
+
+    <!-- Bleach dark -->
+    <style name="TemaBleach" parent="Base.Theme.WatchGuide">
+        <item name="colorPrimary">#212121</item>
+        <item name="colorSecondary">#FF3D00</item>
+        <item name="colorBackground">#121212</item>
+        <item name="colorCard">#1E1E1E</item>
+        <item name="colorTextPrimary">#FFFFFF</item>
+        <item name="colorTextSecondary">#B3B3B3</item>
+        <item name="colorTextBlackAndWhite">@color/white</item>
+
+        <item name="imagenMain">@drawable/bleach_main</item>
+        <item name="secondaryImage">@drawable/bleach_secondary</item>
+    </style>
+
+    <!-- Kimetsu no Yaiba dark -->
+    <style name="TemaKimetsu" parent="Base.Theme.WatchGuide">
+        <item name="colorPrimary">#1B5E20</item>
+        <item name="colorSecondary">#B71C1C</item>
+        <item name="colorBackground">#121212</item>
+        <item name="colorCard">#2E2E2E</item>
+        <item name="colorTextPrimary">#FFFFFF</item>
+        <item name="colorTextBlackAndWhite">@color/white</item>
+
+        <item name="colorTextSecondary">#B3B3B3</item>
+        <item name="imagenMain">@drawable/kimetsu_main</item>
+        <item name="secondaryImage">@drawable/kimetsu_secondary</item>
+    </style>
+
+    <!-- Shingeki no Kyojin dark -->
+    <style name="TemaShingeki" parent="Base.Theme.WatchGuide">
+        <item name="colorPrimary">#4E342E</item>
+        <item name="colorSecondary">#2E7D32</item>
+        <item name="colorTextBlackAndWhite">@color/white</item>
+
+        <item name="colorBackground">#121212</item>
+        <item name="colorCard">#2C2C2C</item>
+        <item name="colorTextPrimary">#FFFFFF</item>
+        <item name="colorTextSecondary">#B3B3B3</item>
+        <item name="imagenMain">@drawable/shingeki_main</item>
+        <item name="secondaryImage">@drawable/shingeki_secondary</item>
+    </style>
+
 </resources>

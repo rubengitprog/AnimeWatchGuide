@@ -47,7 +47,8 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation (libs.material.v190)
     implementation (libs.firebase.appcheck.playintegrity)
-
+    implementation (libs.coordinatorlayout)
+    implementation (libs.material.v1130)
     implementation(libs.recyclerview)
     implementation(libs.firebase.storage)
     annotationProcessor(libs.compiler)

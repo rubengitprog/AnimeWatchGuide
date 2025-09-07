@@ -61,10 +61,13 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
                 .addOnSuccessListener(doc -> {
                     if (doc.exists() && doc.contains("averageRating")) {
                         double avg = doc.getDouble("averageRating");
-                        holder.averageRating.setText("Nota: " + String.format("%.1f", avg + "⭐"));
+                        holder.averageRating.setText("Nota: " + String.format("%.1f", avg));
                     } else {
-                        holder.averageRating.setText("Nota: -");
+                        holder.averageRating.setText("Nota: -"); // no hay aún valoraciones
                     }
+                })
+                .addOnFailureListener(e -> {
+                    holder.averageRating.setText("Nota: -"); // si falla la lectura
                 });
         // Obtener estado real desde la cache de Firestore
         LibraryEntry entry = userLibrary.getCache().get(anime.mal_id);
