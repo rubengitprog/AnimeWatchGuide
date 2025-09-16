@@ -1,12 +1,9 @@
 package com.example.watchguide;
 
-import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.TypedArray;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,19 +16,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.watchguide.models.FollowingItem;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -39,11 +32,13 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView profileName, followersCount, followingCount;
     private TabLayout tabLayout;
     private ImageView imageBanner;
+    private SwitchMaterial deleteSwitch;
 
     private String uid;
+    private boolean isMyProfile;
+    private boolean deleteEnabled;
+
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +50,7 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        // (Opcional) Si quieres que también cambie la imagen principal según el tema:
+        // Imagen principal según tema
         ImageView imagenBanner = findViewById(R.id.secondaryImage);
         int[] attrs = new int[]{R.attr.secondaryImage};
         TypedArray ta = obtainStyledAttributes(attrs);
@@ -66,20 +61,51 @@ public class ProfileActivity extends AppCompatActivity {
         }
 
         uid = getIntent().getStringExtra("uid");
+        String currentUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
         if (uid == null) {
-            uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            uid = currentUid;
         }
+
+        isMyProfile = uid.equals(currentUid);
 
         profileImage = findViewById(R.id.profileImage);
         profileName = findViewById(R.id.profileName);
         followersCount = findViewById(R.id.followersCount);
         followingCount = findViewById(R.id.followingCount);
         tabLayout = findViewById(R.id.tabLayout);
+        deleteSwitch = findViewById(R.id.deleteSwitch);
 
+        // 🔹 Configuración del switch
+        if (isMyProfile) {
+            // Leer preferencia
+            SharedPreferences prefs = getSharedPreferences("Settings", MODE_PRIVATE);
+            deleteEnabled = prefs.getBoolean("deleteEnabled", false);
+            deleteSwitch.setChecked(deleteEnabled);
+            deleteSwitch.setVisibility(View.VISIBLE);
 
+            deleteSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                deleteEnabled = isChecked;
+                prefs.edit().putBoolean("deleteEnabled", isChecked).apply();
+                Toast.makeText(this,
+                        isChecked ? "Eliminación activada" : "Eliminación desactivada",
+                        Toast.LENGTH_SHORT).show();
 
+                // Recargar fragment actual con el nuevo estado
+                int pos = tabLayout.getSelectedTabPosition();
+                if (pos == 0) {
+                    replaceFragment(FavoritesFragment.newInstance(uid, deleteEnabled));
+                } else if (pos == 1) {
+                    replaceFragment(WatchedFragment.newInstance(uid, deleteEnabled));
+                }
+            });
+        } else {
+            // Si no es mi perfil → ocultar switch y deshabilitar
+            deleteEnabled = false;
+            deleteSwitch.setVisibility(View.GONE);
+        }
 
-        // Cargar info del usuario y banner
+        // Cargar info del usuario y contadores
         loadUserInfo();
         loadCounters();
 
@@ -87,16 +113,16 @@ public class ProfileActivity extends AppCompatActivity {
         tabLayout.addTab(tabLayout.newTab().setText("Favorites"));
         tabLayout.addTab(tabLayout.newTab().setText("Seen"));
 
-        replaceFragment(new FavoritesFragment(uid));
+        replaceFragment(FavoritesFragment.newInstance(uid, deleteEnabled));
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 Fragment selected = null;
                 if (tab.getPosition() == 0) {
-                    selected = new FavoritesFragment(uid);
+                    selected = FavoritesFragment.newInstance(uid, deleteEnabled);
                 } else if (tab.getPosition() == 1) {
-                    selected = new WatchedFragment(uid);
+                    selected = WatchedFragment.newInstance(uid, deleteEnabled);
                 }
                 if (selected != null) replaceFragment(selected);
             }
@@ -105,7 +131,7 @@ public class ProfileActivity extends AppCompatActivity {
             @Override public void onTabReselected(TabLayout.Tab tab) {}
         });
 
-        // Mostrar lista de following al pulsar el contador
+        // Mostrar lista de following al pulsar
         followingCount.setOnClickListener(v -> loadFollowing());
     }
 
@@ -128,7 +154,6 @@ public class ProfileActivity extends AppCompatActivity {
             }
         }).addOnFailureListener(e -> imageBanner.setImageResource(R.drawable.piece));
     }
-
 
     private void loadCounters() {
         db.collection("users").document(uid).collection("followers")

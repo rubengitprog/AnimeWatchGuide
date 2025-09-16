@@ -110,6 +110,7 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
         });
 
         // Click en item → Rating
+        // Click en item → Rating
         holder.itemView.setOnClickListener(v -> {
             View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_anime, null);
             EditText inputRating = dialogView.findViewById(R.id.inputRating);
@@ -131,16 +132,37 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
                                     anime.rating = rating;   // ahora es float, no int
                                     anime.seen = rating > 0;
 
+                                    // Guardamos rating
                                     userLibrary.setRating(anime, anime.rating)
-                                            .addOnSuccessListener(aVoid -> userLibrary.setWatched(anime, anime.seen)
-                                                    .addOnSuccessListener(aVoid1 -> {
-                                                        holder.itemView.setBackgroundColor(anime.seen ?
-                                                                context.getResources().getColor(android.R.color.darker_gray) :
-                                                                context.getResources().getColor(android.R.color.white));
-                                                        holder.buttonSeen.setIconResource(anime.seen ? R.drawable.ojotachado : R.drawable.ojoabierto);
-                                                    }))
+                                            .addOnSuccessListener(aVoid -> {
+                                                // Guardamos visto/no visto
+                                                userLibrary.setWatched(anime, anime.seen)
+                                                        .addOnSuccessListener(aVoid1 -> {
+                                                            holder.itemView.setBackgroundColor(anime.seen ?
+                                                                    context.getResources().getColor(android.R.color.darker_gray) :
+                                                                    context.getResources().getColor(android.R.color.white));
+                                                            holder.buttonSeen.setIconResource(anime.seen ? R.drawable.ojotachado : R.drawable.ojoabierto);
+
+                                                            // 🔹 Actualizamos media en tiempo real
+                                                            FirebaseFirestore.getInstance()
+                                                                    .collection("anime")
+                                                                    .document(String.valueOf(anime.mal_id))
+                                                                    .get()
+                                                                    .addOnSuccessListener(doc -> {
+                                                                        if (doc.exists() && doc.contains("averageRating")) {
+                                                                            double avg = doc.getDouble("averageRating");
+                                                                            holder.averageRating.setText("Nota: " + String.format("%.1f", avg));
+                                                                        } else {
+                                                                            holder.averageRating.setText("Nota: -");
+                                                                        }
+                                                                    })
+                                                                    .addOnFailureListener(e -> holder.averageRating.setText("Nota: -"));
+                                                        });
+                                            })
                                             .addOnFailureListener(e ->
                                                     Toast.makeText(context, "Error al guardar rating", Toast.LENGTH_SHORT).show());
+
+
                                 } else {
                                     Toast.makeText(context, "La nota debe estar entre 1.0 y 10.0", Toast.LENGTH_SHORT).show();
                                 }
@@ -152,6 +174,7 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
                     .setNegativeButton("Cancelar", null)
                     .show();
         });
+
 
         // Reset
         holder.buttonReset.setOnClickListener(v -> {

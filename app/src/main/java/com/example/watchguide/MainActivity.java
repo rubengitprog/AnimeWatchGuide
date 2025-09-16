@@ -376,6 +376,20 @@ public class MainActivity extends AppCompatActivity {
             drawerLayout.closeDrawers();
             return true;
         });
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(currentUid)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        String username = doc.getString("username");
+                        // Si todavía tiene el nombre por defecto de Google o está vacío
+                        if (username == null || username.equals(FirebaseAuth.getInstance().getCurrentUser().getDisplayName())) {
+                            promptForNewName();
+                        }
+                    }
+                });
+
     }
 
 
@@ -387,41 +401,63 @@ public class MainActivity extends AppCompatActivity {
 
         // Crear un EditText dentro de un AlertDialog
         EditText input = new EditText(this);
-        input.setHint("Nuevo nombre de usuario");
+        input.setHint("New username");
 
-        new AlertDialog.Builder(this)
-                .setTitle("Cambiar nombre")
-                .setMessage("Introduce tu nuevo nombre de usuario:")
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("Change your username")
+                .setMessage("Username:")
                 .setView(input)
-                .setPositiveButton("Guardar", (dialog, which) -> {
-                    String newName = input.getText().toString().trim();
+                .setCancelable(false) // El usuario no puede cerrar hasta que ponga un nombre válido
+                .setPositiveButton("Save", null) // Lo manejamos después para evitar cierre automático
+                .setNegativeButton("Cancel", (d, w) -> d.dismiss())
+                .create();
 
-                    if (newName.isEmpty()) {
-                        Toast.makeText(this, "El nombre no puede estar vacío", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
+        dialog.setOnShowListener(d -> {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                String newName = input.getText().toString().trim();
 
-                    // Guardar en Firestore
-                    FirebaseFirestore.getInstance()
-                            .collection("users")
-                            .document(uid)
-                            .update("username", newName)
-                            .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(this, "Nombre actualizado", Toast.LENGTH_SHORT).show();
+                if (newName.isEmpty()) {
+                    Toast.makeText(this, "New name field must be filled", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-                                // Actualizar el Navigation Drawer
-                                NavigationView navigationView = findViewById(R.id.navigationView);
-                                View headerView = navigationView.getHeaderView(0);
-                                TextView headerName = headerView.findViewById(R.id.headerTitle);
+                // Comprobar que no exista ya en Firestore
+                FirebaseFirestore.getInstance()
+                        .collection("users")
+                        .whereEqualTo("username", newName)
+                        .get()
+                        .addOnSuccessListener(snap -> {
+                            if (!snap.isEmpty()) {
+                                Toast.makeText(this, "Username already exists, choose another", Toast.LENGTH_SHORT).show();
+                            } else {
+                                // Guardar en Firestore
+                                FirebaseFirestore.getInstance()
+                                        .collection("users")
+                                        .document(uid)
+                                        .update("username", newName)
+                                        .addOnSuccessListener(aVoid -> {
+                                            Toast.makeText(this, "Name updated", Toast.LENGTH_SHORT).show();
 
-                                headerName.setText(newName);
-                            })
-                            .addOnFailureListener(e -> {
-                                Toast.makeText(this, "Error al actualizar nombre", Toast.LENGTH_SHORT).show();
-                            });
-                })
-                .setNegativeButton("Cancelar", (dialog, which) -> dialog.dismiss())
-                .show();
+                                            // Actualizar el Navigation Drawer
+                                            NavigationView navigationView = findViewById(R.id.navigationView);
+                                            View headerView = navigationView.getHeaderView(0);
+                                            TextView headerName = headerView.findViewById(R.id.headerTitle);
+                                            headerName.setText(newName);
+
+                                            dialog.dismiss(); // ✅ Solo cerramos si es válido y único
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Toast.makeText(this, "Error updating name", Toast.LENGTH_SHORT).show();
+                                        });
+                            }
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(this, "Error checking username", Toast.LENGTH_SHORT).show();
+                        });
+            });
+        });
+
+        dialog.show();
     }
 
 
@@ -595,6 +631,68 @@ public class MainActivity extends AppCompatActivity {
                 .create();
 
         btnClose.setOnClickListener(v -> dialog.dismiss());
+        dialog.show();
+    }
+    private void promptForNewName() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) return;
+
+        String uid = user.getUid();
+
+        // Crear EditText dentro de AlertDialog
+        EditText input = new EditText(this);
+        input.setHint("New username");
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("Set your username")
+                .setMessage("Please enter a unique username:")
+                .setView(input)
+                .setCancelable(false) // ❌ El usuario no puede cerrar el diálogo hasta que rellene
+                .setPositiveButton("Save", null) // Lo manejamos después para evitar cierre automático
+                .create();
+
+        dialog.setOnShowListener(d -> {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                String newName = input.getText().toString().trim();
+                if (newName.isEmpty()) {
+                    Toast.makeText(this, "Username cannot be empty", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Comprobar que no exista ya en Firestore
+                FirebaseFirestore.getInstance()
+                        .collection("users")
+                        .whereEqualTo("username", newName)
+                        .get()
+                        .addOnSuccessListener(snap -> {
+                            if (!snap.isEmpty()) {
+                                Toast.makeText(this, "Username already exists, choose another", Toast.LENGTH_SHORT).show();
+                            } else {
+                                // Guardar en Firestore
+                                FirebaseFirestore.getInstance()
+                                        .collection("users")
+                                        .document(uid)
+                                        .update("username", newName)
+                                        .addOnSuccessListener(aVoid -> {
+                                            Toast.makeText(this, "Username set!", Toast.LENGTH_SHORT).show();
+
+                                            // Actualizar Navigation Drawer
+                                            NavigationView navigationView = findViewById(R.id.navigationView);
+                                            View headerView = navigationView.getHeaderView(0);
+                                            TextView headerName = headerView.findViewById(R.id.headerTitle);
+                                            headerName.setText(newName);
+
+                                            dialog.dismiss(); // ✅ Solo cerramos si es válido y único
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Toast.makeText(this, "Error saving username", Toast.LENGTH_SHORT).show();
+                                        });
+                            }
+                        })
+                        .addOnFailureListener(e -> Toast.makeText(this, "Error checking username", Toast.LENGTH_SHORT).show());
+            });
+        });
+
         dialog.show();
     }
 
