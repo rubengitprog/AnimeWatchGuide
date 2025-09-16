@@ -1,16 +1,18 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="8dp"
-    android:background="?attr/selectableItemBackground">
+    android:backgroundTint="?attr/colorBackgroundBlackAndWhite">
 
     <ImageView
         android:id="@+id/animeImage"
         android:layout_width="match_parent"
         android:layout_height="180dp"
         android:scaleType="centerCrop"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="8dp"
+        />
 
     <TextView
         android:id="@+id/animeTitle"
@@ -18,7 +20,8 @@
         android:layout_height="wrap_content"
         android:text="Anime Title"
         android:textSize="16sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:textColor="?attr/colorTextBlackAndWhite"/>
 
     <TextView
         android:id="@+id/animeSynopsis"
@@ -26,16 +29,18 @@
         android:layout_height="wrap_content"
         android:text="Synopsis"
         android:textSize="14sp"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="8dp"
+        android:textColor="?attr/colorTextBlackAndWhite"/>
 
     <TextView
         android:id="@+id/animeAverageRating"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Nota: - ⭐"
-        android:textSize="14sp"
-        android:textStyle="italic"
-        android:layout_marginTop="4dp"/>
+        android:textSize="17sp"
+        android:textStyle="bold|italic"
+        android:layout_marginTop="4dp"
+        android:textColor="?attr/colorTextBlackAndWhite"/>
 
     <!-- Botones a la derecha -->
     <LinearLayout
@@ -53,28 +58,31 @@
             android:contentDescription="Favorite"
             android:layout_marginEnd="8dp" />
 
-        <ImageButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonSeen"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="@null"
-            android:src="@drawable/ojoabierto"
+            android:icon="@drawable/ojoabierto"
             android:scaleType="fitCenter"
             android:contentDescription="Reset"
+            style="@style/Widget.Material3.Button.Icon"
+
             android:padding="4dp"
             android:clickable="true"
             android:focusable="true" />
-        <ImageButton
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/buttonReset"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@null"
-            android:src="@drawable/reiniciar"
-            android:scaleType="fitCenter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:contentDescription="Reset"
-            android:padding="4dp"
-            android:clickable="true"
-            android:focusable="true" />
+            android:layout_gravity="end|bottom"
+            android:layout_margin="16dp"
+            app:srcCompat="@drawable/reiniciar"
+            app:tint="@android:color/white"
+            app:backgroundTint="@color/black"
+            app:elevation="8dp" />
+
 
     </LinearLayout>
 

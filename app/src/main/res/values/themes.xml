@@ -15,6 +15,7 @@
         <item name="colorTextSecondary">@android:color/darker_gray</item>
         <item name="imagenMain">@drawable/ic_launcher_foreground</item>
         <item name="secondaryImage">@drawable/ic_launcher_background</item>
+        <item name="colorBackgroundBlackAndWhite">@color/white</item>
     </style>
 
     <!-- Tema principal -->
@@ -23,9 +24,9 @@
     <!-- Naruto -->
     <style name="TemaNaruto" parent="Base.Theme.WatchGuide">
         <item name="colorPrimary">#FF9800</item> <!-- naranja traje -->
-
+        <item name="hatImage">@drawable/narutohair</item>
         <item name="colorSecondary">#1976D2</item> <!-- azul protector -->
-        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorOnPrimary">#80FFFFFF</item>
         <item name="colorTextBlackAndWhite">@color/black</item>
         <item name="colorBackground">#FFF3E0</item> <!-- beige cálido -->
         <item name="colorCard">#FFE0B2</item>
@@ -33,14 +34,15 @@
         <item name="colorTextSecondary">#424242</item>
         <item name="imagenMain">@drawable/naruto_main</item>
         <item name="secondaryImage">@drawable/naruto_secondary</item>
+        <item name="colorBackgroundBlackAndWhite">@color/white</item>
     </style>
 
     <!-- One Piece -->
     <style name="TemaOnePiece" parent="Base.Theme.WatchGuide">
         <item name="colorPrimary">#2196F3</item> <!-- azul mar -->
-
+        <item name="hatImage">@drawable/luffyhat</item>
         <item name="colorSecondary">#FFD600</item> <!-- amarillo del sombrero -->
-        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorOnPrimary">#80FFFFFF</item>
         <item name="colorTextBlackAndWhite">@color/black</item>
         <item name="colorBackground">#E1F5FE</item> <!-- azul cielo claro -->
         <item name="colorCard">#B3E5FC</item>
@@ -48,6 +50,7 @@
         <item name="colorTextSecondary">#1565C0</item>
         <item name="imagenMain">@drawable/onepiece_main</item>
         <item name="secondaryImage">@drawable/piece</item>
+        <item name="colorBackgroundBlackAndWhite">@color/white</item>
     </style>
 
     <!-- Dragon Ball -->
@@ -55,14 +58,15 @@
         <item name="colorPrimary">#F57C00</item> <!-- naranja Goku -->
         <item name="colorTextBlackAndWhite">@color/black</item>
         <item name="colorSecondary">#0288D1</item> <!-- azul uniforme -->
-        <item name="colorOnPrimary">#FFFFFF</item>
-
+        <item name="colorOnPrimary">#80FFFFFF</item>
         <item name="colorBackground">#FFFDE7</item> <!-- amarillo muy claro -->
         <item name="colorCard">#FFF59D</item>
         <item name="colorTextPrimary">#212121</item>
         <item name="colorTextSecondary">#37474F</item>
         <item name="imagenMain">@drawable/dragon_main</item>
         <item name="secondaryImage">@drawable/dragon_secondary</item>
+        <item name="colorBackgroundBlackAndWhite">@color/white</item>
+        <item name="hatImage">@drawable/dragonballhair</item>
     </style>
 
     <!-- Bleach -->
@@ -70,14 +74,15 @@
         <item name="colorPrimary">#212121</item> <!-- negro shinigami -->
         <item name="colorTextBlackAndWhite">@color/black</item>
         <item name="colorSecondary">#FF3D00</item> <!-- rojo zanpakuto -->
-        <item name="colorOnPrimary">#FFFFFF</item>
-
+        <item name="colorOnPrimary">#80FFFFFF</item>
         <item name="colorBackground">#FAFAFA</item> <!-- blanco muy claro -->
         <item name="colorCard">#EEEEEE</item>
         <item name="colorTextPrimary">#212121</item>
         <item name="colorTextSecondary">#757575</item>
         <item name="imagenMain">@drawable/bleach_main</item>
         <item name="secondaryImage">@drawable/bleach_secondary</item>
+        <item name="hatImage">@drawable/bleachhair</item>
+        <item name="colorBackgroundBlackAndWhite">@color/white</item>
     </style>
 
     <!-- Kimetsu no Yaiba -->
@@ -85,29 +90,17 @@
         <item name="colorPrimary">#2E7D32</item> <!-- verde haori Tanjiro -->
         <item name="colorTextBlackAndWhite">@color/black</item>
         <item name="colorSecondary">#C62828</item> <!-- rojo sangre -->
-        <item name="colorOnPrimary">#FFFFFF</item>
-
+        <item name="colorOnPrimary">#80FFFFFF</item>
         <item name="colorBackground">#E8F5E9</item> <!-- verde muy suave -->
         <item name="colorCard">#C8E6C9</item>
         <item name="colorTextPrimary">#212121</item>
         <item name="colorTextSecondary">#424242</item>
         <item name="imagenMain">@drawable/kimetsu_main</item>
         <item name="secondaryImage">@drawable/kimetsu_secondary</item>
+        <item name="hatImage">@drawable/kimetsuhair</item>
+        <item name="colorBackgroundBlackAndWhite">@color/white</item>
     </style>
 
-    <!-- Shingeki no Kyojin -->
-    <style name="TemaShingeki" parent="Base.Theme.WatchGuide">
-        <item name="colorPrimary">#4E342E</item> <!-- marrón uniforme militar -->
 
-        <item name="colorSecondary">#2E7D32</item> <!-- verde brigadas -->
-        <item name="colorOnPrimary">#FFFFFF</item>
-        <item name="colorTextBlackAndWhite">@color/black</item>
-        <item name="colorBackground">#EFEBE9</item> <!-- gris/beige murallas -->
-        <item name="colorCard">#D7CCC8</item>
-        <item name="colorTextPrimary">#212121</item>
-        <item name="colorTextSecondary">#424242</item>
-        <item name="imagenMain">@drawable/shingeki_main</item>
-        <item name="secondaryImage">@drawable/shingeki_secondary</item>
-    </style>
 
 </resources>

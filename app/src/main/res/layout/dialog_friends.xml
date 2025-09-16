@@ -5,29 +5,47 @@
     android:layout_margin="16dp"
     app:cardCornerRadius="20dp"
     app:cardElevation="8dp"
-    android:backgroundTint="@android:color/white">
+    app:cardBackgroundColor="?attr/colorBackgroundBlackAndWhite">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp">
+        <TextView
+            android:id="@+id/dialogTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add new Friends"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorTextBlackAndWhite"
+            android:gravity="center"
+            android:layout_marginBottom="12dp"
+            android:layout_marginTop="4dp"/>
 
-
-
-        <!-- Caja de búsqueda con estilo Material -->
+        <!-- Caja de búsqueda -->
         <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Search user by name..."
-            style="@style/Widget.Material3.TextInputLayout.FilledBox"
+            app:boxBackgroundColor="@android:color/transparent"
+            app:boxStrokeColor="?attr/colorTextBlackAndWhite"
+            app:boxStrokeWidth="1dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp"
             app:endIconMode="clear_text">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editSearchUser"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text" />
+                android:inputType="text"
+                android:textColor="?attr/colorTextBlackAndWhite"
+            />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Lista de usuarios -->
@@ -37,9 +55,21 @@
             android:layout_height="300dp"
             android:layout_marginTop="16dp"
             android:clipToPadding="false"
-            android:paddingBottom="8dp"/>
-
-
+            android:paddingBottom="8dp"
+            android:background="@android:color/transparent" />
+        <TextView
+            android:id="@+id/btnClose"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Close"
+            android:textColor="?attr/colorTextBlackAndWhite"
+            android:backgroundTint="?attr/colorBackgroundBlackAndWhite"
+            android:textStyle="bold"
+            android:layout_gravity="end"
+            android:layout_marginTop="12dp"
+            android:padding="8dp"
+            android:clickable="true"
+            android:focusable="true" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

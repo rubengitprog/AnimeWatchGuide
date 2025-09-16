@@ -2,12 +2,14 @@
 <resources>
     <attr name="imagenMain" format="reference" />
     <attr name="secondaryImage" format="reference" />
+    <attr name="hatImage" format="reference" />
 
     <!-- Atributos personalizados para colores -->
     <attr name="colorBackground" format="color" />
+    <attr name="colorBackgroundBlackAndWhite" format="color" />
     <attr name="colorCard" format="color" />
     <attr name="colorTextPrimary" format="color" />
     <attr name="colorTextBlackAndWhite" format="color" />
     <attr name="colorTextSecondary" format="color" />
-
+    <attr name="colorOnPrimary" format="color" />
 </resources>

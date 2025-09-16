@@ -3,6 +3,7 @@
         android:id="@+id/nav_profile"
         android:title="Profile"
         android:icon="@drawable/profileicon"
+
         />
 
     <item
@@ -12,7 +13,7 @@
         />
     <item
         android:id="@+id/nav_theme"
-        android:title="Personalizar Tema"
+        android:title="Customize Theme"
         android:icon="@drawable/paleta"/>
     <item
         android:id="@+id/nav_Info"

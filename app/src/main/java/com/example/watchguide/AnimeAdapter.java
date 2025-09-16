@@ -18,6 +18,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.watchguide.models.Anime;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
@@ -76,7 +78,7 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
 
         // Inicializar botones
         holder.favButton.setImageResource(isFav ? android.R.drawable.btn_star_big_on : android.R.drawable.btn_star_big_off);
-        holder.buttonSeen.setImageResource(isWatched ? R.drawable.ojotachado : R.drawable.ojoabierto);
+        holder.buttonSeen.setIconResource(isWatched ? R.drawable.ojotachado : R.drawable.ojoabierto);
         holder.itemView.setBackgroundColor(isWatched ?
                 context.getResources().getColor(android.R.color.darker_gray) :
                 context.getResources().getColor(android.R.color.white));
@@ -99,7 +101,7 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
             userLibrary.setWatched(anime, newWatched)
                     .addOnSuccessListener(aVoid -> {
                         if (entry != null) entry.watched = newWatched;
-                        holder.buttonSeen.setImageResource(newWatched ? R.drawable.ojotachado : R.drawable.ojoabierto);
+                        holder.buttonSeen.setIconResource(newWatched ? R.drawable.ojotachado : R.drawable.ojoabierto);
                         holder.itemView.setBackgroundColor(newWatched ?
                                 context.getResources().getColor(android.R.color.darker_gray) :
                                 context.getResources().getColor(android.R.color.white));
@@ -120,7 +122,7 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
             new AlertDialog.Builder(context)
                     .setTitle(anime.title)
                     .setView(dialogView)
-                    .setPositiveButton("Guardar", (dialog, which) -> {
+                    .setPositiveButton("Save", (dialog, which) -> {
                         String valor = inputRating.getText().toString().trim();
                         if (!valor.isEmpty()) {
                             try {
@@ -135,7 +137,7 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
                                                         holder.itemView.setBackgroundColor(anime.seen ?
                                                                 context.getResources().getColor(android.R.color.darker_gray) :
                                                                 context.getResources().getColor(android.R.color.white));
-                                                        holder.buttonSeen.setImageResource(anime.seen ? R.drawable.ojotachado : R.drawable.ojoabierto);
+                                                        holder.buttonSeen.setIconResource(anime.seen ? R.drawable.ojotachado : R.drawable.ojoabierto);
                                                     }))
                                             .addOnFailureListener(e ->
                                                     Toast.makeText(context, "Error al guardar rating", Toast.LENGTH_SHORT).show());
@@ -159,7 +161,7 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
                 userLibrary.setRating(anime, 0);
             }
             holder.favButton.setImageResource(android.R.drawable.btn_star_big_off);
-            holder.buttonSeen.setImageResource(R.drawable.ojoabierto);
+            holder.buttonSeen.setIconResource(R.drawable.ojoabierto);
             holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.white));
             Toast.makeText(context, "Anime reset", Toast.LENGTH_SHORT).show();
         });
@@ -174,8 +176,8 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView title, synopsis;
         ImageView image, favButton;
-        ImageButton buttonReset;
-        ImageButton buttonSeen;
+        FloatingActionButton buttonReset;
+        MaterialButton buttonSeen;
         TextView averageRating;
 
         public ViewHolder(@NonNull View itemView) {

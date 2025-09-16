@@ -5,6 +5,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -17,6 +18,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -25,6 +27,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.appcheck.FirebaseAppCheck;
 import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory;
@@ -81,8 +84,6 @@ public class MainActivity extends AppCompatActivity {
 
         SharedPreferences prefs = getSharedPreferences("MisTemas", MODE_PRIVATE);
         int temaGuardado = prefs.getInt("tema", R.style.TemaOnePiece);
-
-
         setTheme(temaGuardado); // 🔹 Aplicar antes de inflar layout
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -144,7 +145,11 @@ public class MainActivity extends AppCompatActivity {
 
         adapter = new AnimeAdapter(animeList, this, userLibrary);
         recyclerView.setAdapter(adapter);
-
+        DividerItemDecoration divider = new DividerItemDecoration(
+                recyclerView.getContext(),
+                DividerItemDecoration.VERTICAL
+        );
+        recyclerView.addItemDecoration(divider);
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 
@@ -160,7 +165,10 @@ public class MainActivity extends AppCompatActivity {
 
         api = retrofit.create(AnimeApi.class);
 
-        searchAnime("One Piece"); // búsqueda inicial
+
+
+        String initialSearch = prefs.getString("initialSearch", "One Piece");
+        handler.postDelayed(() -> searchAnime(initialSearch), 300);
 
         searchInput.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -183,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
             }
             @Override public void afterTextChanged(Editable s) {}
         });
-        ImageButton btnFilter = findViewById(R.id.btnFilter);
+        MaterialButton btnFilter = findViewById(R.id.btnFilter);
         btnFilter.setOnClickListener(v -> {
             String[] categories = { "Remove Filter","Action","Adventure","Cars","Comedy","Dementia",
                     "Demons","Mystery","Drama","Ecchi","Fantasy","Game","Hentai","Historical",
@@ -201,10 +209,12 @@ public class MainActivity extends AppCompatActivity {
                         activeGenreId = categoryIds[which];
                         if (activeGenreId == -1 || activeGenreId == 0) {
                             Toast.makeText(MainActivity.this, "Filter removed", Toast.LENGTH_SHORT).show();
-                            btnFilter.setImageResource(R.drawable.filtro);
+                            btnFilter.setIconResource(R.drawable.filtro);
+
                         } else {
                             searchAnimeByGenre(activeGenreId);
-                            btnFilter.setImageResource(R.drawable.filtroon);
+                            btnFilter.setIconResource(R.drawable.filtroon);
+
                         }
                     })
                     .show();
@@ -334,28 +344,30 @@ public class MainActivity extends AppCompatActivity {
                 spinner.setAdapter(adapter);
 
                 new AlertDialog.Builder(this)
-                        .setTitle("Personalizar Tema")
+                        .setTitle("Customize Theme")
                         .setView(dialogView)
-                        .setPositiveButton("Aplicar", (dialog, which) -> {
+                        .setPositiveButton("Apply", (dialog, which) -> {
                             int pos = spinner.getSelectedItemPosition();
                             int nuevoTema;
+                            String initialSearch2=" ";
                             switch (pos) {
-                                case 0: nuevoTema = R.style.TemaNaruto; break;
-                                case 1: nuevoTema = R.style.TemaOnePiece; break;
-                                case 2: nuevoTema = R.style.TemaBleach; break;
-                                case 3: nuevoTema = R.style.TemaDragonBall; break;
-                                case 4: nuevoTema = R.style.TemaKimetsu; break;
-                                default: nuevoTema = R.style.TemaOnePiece; break;
+                                case 0: nuevoTema = R.style.TemaNaruto; initialSearch2="Naruto"; break;
+                                case 1: nuevoTema = R.style.TemaOnePiece; initialSearch2="One Piece";break;
+                                case 2: nuevoTema = R.style.TemaBleach;initialSearch2="Bleach"; break;
+                                case 3: nuevoTema = R.style.TemaDragonBall; initialSearch2="Dragon Ball Z";break;
+                                case 4: nuevoTema = R.style.TemaKimetsu;initialSearch2="Kimetsu"; break;
+                                default: nuevoTema = R.style.TemaOnePiece;initialSearch2="One Piece"; break;
                             }
 
                             getSharedPreferences("MisTemas", MODE_PRIVATE)
                                     .edit()
                                     .putInt("tema", nuevoTema)
+                                    .putString("initialSearch", initialSearch2)
                                     .apply();
 
                             recreate();
                         })
-                        .setNegativeButton("Cancelar", null)
+                        .setNegativeButton("Cancel", null)
                         .show();
 
                 return true;
@@ -518,7 +530,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void showFriendsDialog() {
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_friends, null);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_friends, (ViewGroup) findViewById(android.R.id.content), false);
+
         EditText editSearch = dialogView.findViewById(R.id.editSearchUser);
         RecyclerView recyclerViewUsers = dialogView.findViewById(R.id.recyclerViewUsers);
         recyclerViewUsers.setLayoutManager(new LinearLayoutManager(this));
@@ -542,6 +555,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     userAdapter.notifyDataSetChanged();
                 });
+
 
         // 🔹 Buscar usuarios localmente (case-insensitive)
         editSearch.addTextChangedListener(new TextWatcher() {
@@ -571,14 +585,17 @@ public class MainActivity extends AppCompatActivity {
                             userAdapter.notifyDataSetChanged();
                         });
             }
+
         });
 
 
-        new androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("Add new Friends")
+        TextView btnClose = dialogView.findViewById(R.id.btnClose);
+        AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(dialogView)
-                .setPositiveButton("Close", null)
-                .show();
+                .create();
+
+        btnClose.setOnClickListener(v -> dialog.dismiss());
+        dialog.show();
     }
 
 

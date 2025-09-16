@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="12dp"
-        android:text="Rate Anime from 1 to 5 "
+        android:text="Rate Anime from 1.0 to 10.0 "
         android:textSize="18sp"
         android:textStyle="bold" />
 
@@ -18,7 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="numberDecimal"
-        android:hint="Introduce tu valoración (1.0 - 10.0)" />
+        android:hint="Rating here" />
 
 
 

@@ -9,34 +9,38 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#F5F5F5">
+        android:background="?attr/colorBackground">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            >
+            android:orientation="vertical">
 
-            <androidx.appcompat.widget.Toolbar
+            <!-- Toolbar moderna -->
+            <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorBackground"
                 android:title="WatchGuide"
-                android:titleTextColor="?attr/colorTextBlackAndWhite"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-                app:titleTextColor="?attr/colorTextBlackAndWhite"
-                />
+                android:titleTextColor="?attr/colorTextPrimary"
+                app:popupTheme="@style/ThemeOverlay.Material3.Light" />
 
-            <!-- Cabecera -->
-            <ImageView
-                android:id="@+id/imageMain"
+            <!-- Cabecera con esquinas redondeadas -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:layout_marginBottom="12dp"
-                android:scaleType="centerCrop"
-                android:layout_gravity="center"
-                android:src="?attr/imagenMain" />
+                android:layout_height="100dp"
+                android:layout_margin="12dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp">
+
+                <ImageView
+                    android:id="@+id/imageMain"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="?attr/imagenMain" />
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Contenedor del buscador y botón -->
             <LinearLayout
@@ -44,12 +48,11 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:paddingEnd="8dp">
+                android:padding="12dp">
 
-                <!-- Input de búsqueda -->
+                <!-- Input de búsqueda (lo dejamos como pediste) -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/inputLayout"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -60,52 +63,55 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Search for anime..."
-                        android:textColor="@color/black"
-                        android:textColorHint="@color/black"
-
+                        android:textColor="?attr/colorTextBlackAndWhite"
+                        android:textColorHint="?attr/colorTextBlackAndWhite"
                         android:inputType="text" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Botón de filtro -->
-                <ImageButton
+                <!-- Botón de filtro con estilo Material -->
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnFilter"
+                    style="@style/Widget.Material3.Button.Icon"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:layout_marginStart="8dp"
-                    android:src="@drawable/filtro"
-                    android:scaleType="centerCrop"
+                    app:icon="@drawable/filtro"
+                    app:iconGravity="textStart"
+                    app:cornerRadius="12dp"
+
                     />
             </LinearLayout>
 
-
+            <!-- Lista principal -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:clipToPadding="false"
-                android:paddingTop="12dp"
-                android:paddingBottom="12dp" />
+                android:padding="12dp" />
 
+            <!-- Feed oculto -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerViewFeed"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:clipToPadding="false"
-                android:paddingTop="12dp"
-                android:paddingBottom="12dp"
+                android:padding="12dp"
                 android:visibility="gone" />
-
         </LinearLayout>
 
+        <!-- Bottom navigation moderno -->
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavigationView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:backgroundTint="#416A82"
-            app:menu="@menu/bottom_nav_menu" />
+            android:elevation="8dp"
+            app:labelVisibilityMode="labeled"
+            app:menu="@menu/bottom_nav_menu"
+          />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
@@ -115,7 +121,10 @@
         android:layout_width="280dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="@android:color/white"
+        android:background="?attr/colorOnPrimary"
+        app:itemTextColor="?attr/colorTextBlackAndWhite"
         app:headerLayout="@layout/nav_header"
-        app:menu="@menu/drawer_menu" />
+        app:menu="@menu/drawer_menu"
+        app:itemBackground="@drawable/nav_item_background"/>
+
 </androidx.drawerlayout.widget.DrawerLayout>

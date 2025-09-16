@@ -49,7 +49,7 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         // 🔹 Cargar tema guardado
         int temaGuardado = getSharedPreferences("MisTemas", MODE_PRIVATE)
-                .getInt("tema", R.style.TemaNaruto);
+                .getInt("tema", R.style.TemaOnePiece);
         setTheme(temaGuardado);
 
         super.onCreate(savedInstanceState);

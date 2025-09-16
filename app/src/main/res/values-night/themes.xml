@@ -3,15 +3,18 @@
     <!-- Base dark theme -->
     <style name="Base.Theme.WatchGuide" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">#121212</item>
-        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorOnPrimary">#80CFCFCF</item>
+
         <item name="colorSecondary">#BB86FC</item>
         <item name="colorBackground">#000000</item>
         <item name="colorCard">#1E1E1E</item>
         <item name="colorTextBlackAndWhite">@color/white</item>
+
         <item name="colorTextPrimary">#FFFFFF</item>
         <item name="colorTextSecondary">#B3B3B3</item>
         <item name="imagenMain">@drawable/ic_launcher_foreground</item>
         <item name="secondaryImage">@drawable/ic_launcher_background</item>
+        <item name="colorBackgroundBlackAndWhite">@color/black</item>
     </style>
 
     <!-- Naruto dark -->
@@ -19,13 +22,16 @@
         <item name="colorPrimary">#E65100</item>
         <item name="colorSecondary">#0D47A1</item>
         <item name="colorTextBlackAndWhite">@color/white</item>
-
+        <item name="hatImage">@drawable/narutohair</item>
         <item name="colorBackground">#1A1A1A</item>
         <item name="colorCard">#2E2E2E</item>
         <item name="colorTextPrimary">#FFFFFF</item>
         <item name="colorTextSecondary">#B0B0B0</item>
         <item name="imagenMain">@drawable/naruto_main</item>
         <item name="secondaryImage">@drawable/naruto_secondary</item>
+        <item name="colorBackgroundBlackAndWhite">@color/black</item>
+        <item name="colorOnPrimary">#80CFCFCF</item>
+
     </style>
 
     <!-- One Piece dark -->
@@ -36,10 +42,12 @@
         <item name="colorCard">#1A237E</item>
         <item name="colorTextPrimary">#FFFFFF</item>
         <item name="colorTextBlackAndWhite">@color/white</item>
-
+        <item name="colorOnPrimary">#80CFCFCF</item>
+        <item name="hatImage">@drawable/luffyhat</item>
         <item name="colorTextSecondary">#B3B3B3</item>
         <item name="imagenMain">@drawable/onepiece_main</item>
         <item name="secondaryImage">@drawable/piece</item>
+        <item name="colorBackgroundBlackAndWhite">@color/black</item>
     </style>
 
     <!-- Dragon Ball dark -->
@@ -50,10 +58,12 @@
         <item name="colorCard">#333333</item>
         <item name="colorTextPrimary">#FFFFFF</item>
         <item name="colorTextBlackAndWhite">@color/white</item>
-
+        <item name="colorOnPrimary">#80CFCFCF</item>
+        <item name="hatImage">@drawable/dragonballhair</item>
         <item name="colorTextSecondary">#B0B0B0</item>
         <item name="imagenMain">@drawable/dragon_main</item>
         <item name="secondaryImage">@drawable/dragon_secondary</item>
+        <item name="colorBackgroundBlackAndWhite">@color/black</item>
     </style>
 
     <!-- Bleach dark -->
@@ -65,9 +75,11 @@
         <item name="colorTextPrimary">#FFFFFF</item>
         <item name="colorTextSecondary">#B3B3B3</item>
         <item name="colorTextBlackAndWhite">@color/white</item>
-
+        <item name="colorOnPrimary">#80CFCFCF</item>
+        <item name="hatImage">@drawable/bleachhair</item>
         <item name="imagenMain">@drawable/bleach_main</item>
         <item name="secondaryImage">@drawable/bleach_secondary</item>
+        <item name="colorBackgroundBlackAndWhite">@color/black</item>
     </style>
 
     <!-- Kimetsu no Yaiba dark -->
@@ -78,24 +90,13 @@
         <item name="colorCard">#2E2E2E</item>
         <item name="colorTextPrimary">#FFFFFF</item>
         <item name="colorTextBlackAndWhite">@color/white</item>
-
+        <item name="colorOnPrimary">#80CFCFCF</item>
+        <item name="hatImage">@drawable/kimetsuhair</item>
         <item name="colorTextSecondary">#B3B3B3</item>
         <item name="imagenMain">@drawable/kimetsu_main</item>
         <item name="secondaryImage">@drawable/kimetsu_secondary</item>
+        <item name="colorBackgroundBlackAndWhite">@color/black</item>
     </style>
 
-    <!-- Shingeki no Kyojin dark -->
-    <style name="TemaShingeki" parent="Base.Theme.WatchGuide">
-        <item name="colorPrimary">#4E342E</item>
-        <item name="colorSecondary">#2E7D32</item>
-        <item name="colorTextBlackAndWhite">@color/white</item>
-
-        <item name="colorBackground">#121212</item>
-        <item name="colorCard">#2C2C2C</item>
-        <item name="colorTextPrimary">#FFFFFF</item>
-        <item name="colorTextSecondary">#B3B3B3</item>
-        <item name="imagenMain">@drawable/shingeki_main</item>
-        <item name="secondaryImage">@drawable/shingeki_secondary</item>
-    </style>
 
 </resources>
