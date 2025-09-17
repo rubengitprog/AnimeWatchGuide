@@ -1,4 +1,4 @@
-package com.example.watchguide;
+package com.example.watchguide.ui.fragments.activities;
 
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
@@ -15,6 +15,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.watchguide.ui.fragments.adapters.FollowingAdapter;
+import com.example.watchguide.R;
+import com.example.watchguide.ui.fragments.FavoritesFragment;
+import com.example.watchguide.ui.fragments.WatchedFragment;
 import com.example.watchguide.models.FollowingItem;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.tabs.TabLayout;
@@ -42,7 +46,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // 🔹 Cargar tema guardado
+        //  Cargar tema guardado
         int temaGuardado = getSharedPreferences("MisTemas", MODE_PRIVATE)
                 .getInt("tema", R.style.TemaOnePiece);
         setTheme(temaGuardado);
@@ -76,7 +80,7 @@ public class ProfileActivity extends AppCompatActivity {
         tabLayout = findViewById(R.id.tabLayout);
         deleteSwitch = findViewById(R.id.deleteSwitch);
 
-        // 🔹 Configuración del switch
+        //  Configuración del switch
         if (isMyProfile) {
             // Leer preferencia
             SharedPreferences prefs = getSharedPreferences("Settings", MODE_PRIVATE);
@@ -100,7 +104,7 @@ public class ProfileActivity extends AppCompatActivity {
                 }
             });
         } else {
-            // Si no es mi perfil → ocultar switch y deshabilitar
+            // Si no es mi perfil , ocultar switch y deshabilitar
             deleteEnabled = false;
             deleteSwitch.setVisibility(View.GONE);
         }
@@ -127,8 +131,13 @@ public class ProfileActivity extends AppCompatActivity {
                 if (selected != null) replaceFragment(selected);
             }
 
-            @Override public void onTabUnselected(TabLayout.Tab tab) {}
-            @Override public void onTabReselected(TabLayout.Tab tab) {}
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+            }
         });
 
         // Mostrar lista de following al pulsar
@@ -194,6 +203,7 @@ public class ProfileActivity extends AppCompatActivity {
                 });
     }
 
+    //Mostrar el dialog de personas a las que sigues
     private void showFollowingDialog(List<FollowingItem> list) {
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_following, null);
         RecyclerView recyclerView = dialogView.findViewById(R.id.recyclerViewFollowing);

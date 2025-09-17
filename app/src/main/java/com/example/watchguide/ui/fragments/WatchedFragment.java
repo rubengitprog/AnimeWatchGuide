@@ -1,4 +1,4 @@
-package com.example.watchguide;
+package com.example.watchguide.ui.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,6 +10,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.watchguide.ui.fragments.adapters.AnimeImageAdapter;
+import com.example.watchguide.R;
 import com.example.watchguide.models.AnimeItem;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -69,8 +71,6 @@ public class WatchedFragment extends Fragment {
                             })
                             .setNegativeButton("Cancelar", null)
                             .show();
-                } else {
-                    // Aquí puedes abrir detalles del anime si quieres
                 }
             }
         });
@@ -82,6 +82,7 @@ public class WatchedFragment extends Fragment {
         return view;
     }
 
+    //Carga animes vistos
     private void loadWatched() {
         FirebaseFirestore.getInstance()
                 .collection("users").document(uid)

@@ -1,14 +1,14 @@
-package com.example.watchguide;
+package com.example.watchguide.ui.fragments.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.watchguide.R;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.example.watchguide.models.UserFirestore;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -18,7 +18,6 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -93,7 +92,7 @@ public class LoginActivity extends AppCompatActivity {
 
                                     userRef.get().addOnSuccessListener(document -> {
                                         if (!document.exists()) {
-                                            // 🔹 Solo la primera vez guardamos datos de Google
+                                            // Solo la primera vez guardamos datos de Google
                                             Map<String, Object> userData = new HashMap<>();
                                             userData.put("username", defaultName);
                                             userData.put("email", email);
@@ -101,15 +100,15 @@ public class LoginActivity extends AppCompatActivity {
 
                                             userRef.set(userData)
                                                     .addOnSuccessListener(aVoid ->
-                                                            Toast.makeText(this, "Bienvenido " + defaultName, Toast.LENGTH_SHORT).show()
+                                                            Toast.makeText(this, "Welcome " + defaultName, Toast.LENGTH_SHORT).show()
                                                     )
                                                     .addOnFailureListener(e ->
-                                                            Toast.makeText(this, "Error guardando usuario: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                                                            Toast.makeText(this, "Error saving new user: " + e.getMessage(), Toast.LENGTH_SHORT).show()
                                                     );
                                         } else {
-                                            // 🔹 Usuario ya existe → usamos SIEMPRE lo que haya en Firestore
+                                            // Si el usuario ya existe recuperamos lo que haya guardado en firestore
                                             String username = document.getString("username");
-                                            Toast.makeText(this, "Bienvenido de nuevo " + username, Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(this, "Welcomeback " + username, Toast.LENGTH_SHORT).show();
                                         }
 
                                         startActivity(new Intent(LoginActivity.this, MainActivity.class));
@@ -117,12 +116,12 @@ public class LoginActivity extends AppCompatActivity {
                                     });
                                 }
                             } else {
-                                Toast.makeText(this, "Error autenticando en Firebase: " + task1.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(this, "Firebase login error: " + task1.getException().getMessage(), Toast.LENGTH_SHORT).show();
                             }
                         });
 
             } catch (ApiException e) {
-                Toast.makeText(this, "Error en login: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Login error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }
     }

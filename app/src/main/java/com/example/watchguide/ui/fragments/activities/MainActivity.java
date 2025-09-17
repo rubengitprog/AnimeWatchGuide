@@ -1,4 +1,4 @@
-package com.example.watchguide;
+package com.example.watchguide.ui.fragments.activities;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
@@ -28,6 +28,14 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.watchguide.ui.fragments.adapters.AnimeAdapter;
+import com.example.watchguide.data.api.AnimeApi;
+import com.example.watchguide.ui.fragments.adapters.FeedAdapter;
+import com.example.watchguide.data.api.repository.FirestoreFollowManager;
+import com.example.watchguide.data.api.repository.FirestoreUserLibrary;
+import com.example.watchguide.R;
+import com.example.watchguide.ui.fragments.adapters.UserAdapter;
+import com.example.watchguide.models.UserItem;
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetSequence;
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
@@ -85,18 +93,19 @@ public class MainActivity extends AppCompatActivity {
     private TextInputLayout inputLayout;
     private NavigationView navigationView;
     private DrawerLayout drawerLayout;
-    
-    
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        //Ya que la aplicación tiene personalización de temas, al iniciar precupera el tema guardado en SharedPreferences, por defecto si es la primera vez que inicia sesión, se carga el tema de One Piece
         SharedPreferences prefs = getSharedPreferences("MisTemas", MODE_PRIVATE);
         int temaGuardado = prefs.getInt("tema", R.style.TemaOnePiece);
-        setTheme(temaGuardado); // 🔹 Aplicar antes de inflar layout
+        setTheme(temaGuardado);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // 8️⃣ Aplicar imagen principal dinámica según el tema
+        //  Aplicar imagen principal  según el tema
         ImageView imagenMain = findViewById(R.id.imageMain);
         int[] attrs = new int[]{R.attr.imagenMain};
         TypedArray ta = obtainStyledAttributes(attrs);
@@ -105,22 +114,13 @@ public class MainActivity extends AppCompatActivity {
 
         if (imagenResId != 0) {
             imagenMain.setImageResource(imagenResId);
-            Log.d("🌟ThemeDebug🌟", "Imagen principal cargada: " + imagenResId);
-        } else {
-            Log.d("🌟ThemeDebug🌟", "No se encontró drawable para imagenMain");
+
         }
 
-        // 9️⃣ Escalar la imagen
+        //  Escalar la imagen
         imagenMain.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
         FirebaseApp.initializeApp(this);
-
-        if (FirebaseApp.getApps(this).isEmpty()) {
-            Log.e("FirebaseCheck", "Firebase NO está conectado");
-        } else {
-            Log.d("FirebaseCheck", "Firebase está conectado correctamente");
-        }
-
         FirebaseAppCheck firebaseAppCheck = FirebaseAppCheck.getInstance();
         firebaseAppCheck.installAppCheckProviderFactory(
                 PlayIntegrityAppCheckProviderFactory.getInstance()
@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
         feedAdapter = new FeedAdapter(feedList, this);
         recyclerViewFeed.setAdapter(feedAdapter);
 
-        // ✅ Inicializar la librería de usuario en Firestore
+        //  Inicializar la librería de usuario en Firestore
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         userLibrary = new FirestoreUserLibrary(uid);
 
@@ -149,13 +149,19 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
 
+        //Recuperar y mostrar la lista de animes cargada
         adapter = new AnimeAdapter(animeList, this, userLibrary);
         recyclerView.setAdapter(adapter);
+
+        //Decoración bordes debajo de cada item del recycler
         DividerItemDecoration divider = new DividerItemDecoration(
                 recyclerView.getContext(),
                 DividerItemDecoration.VERTICAL
         );
         recyclerView.addItemDecoration(divider);
+
+
+        //Conexión con el cliente para recogida de datos
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 
@@ -180,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
+            //Cada vez que cambia el texto introducido realiza la búsqueda
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String query = s.toString().trim();
@@ -203,6 +210,8 @@ public class MainActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
             }
         });
+
+        //Lista de géneros disponibles para filtrar y gestión de filtrado
         MaterialButton btnFilter = findViewById(R.id.btnFilter);
         btnFilter.setOnClickListener(v -> {
             String[] categories = {"Remove Filter", "Action", "Adventure", "Cars", "Comedy", "Dementia",
@@ -232,6 +241,8 @@ public class MainActivity extends AppCompatActivity {
                     .show();
         });
 
+
+        //Opciones del BottomNavigationView
         BottomNavigationView bottomNav = findViewById(R.id.bottomNavigationView);
         bottomNav.setOnItemSelectedListener(item -> {
             if (item.getItemId() == R.id.nav_fav) {
@@ -274,6 +285,7 @@ public class MainActivity extends AppCompatActivity {
             String email = user.getEmail();
             String photoUrl = user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : null;
 
+            //Imagen obtenida del perfil de Google
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             db.collection("users").document(uid).get()
                     .addOnSuccessListener(doc -> {
@@ -315,7 +327,7 @@ public class MainActivity extends AppCompatActivity {
         toggle.syncState();
 
 
-        // 🔹 NavigationView listener
+        // NavigationView listener para gestionar el menú lateral
         navigationView.setNavigationItemSelectedListener(item -> {
             if (item.getItemId() == R.id.nav_profile) {
                 openProfile();
@@ -346,6 +358,8 @@ public class MainActivity extends AppCompatActivity {
                         .show();
                 return true;
             }
+
+            //Gestión de cambio de temas
             if (item.getItemId() == R.id.nav_theme) {
                 View dialogView = getLayoutInflater().inflate(R.layout.dialog_selector_theme, null);
                 Spinner spinner = dialogView.findViewById(R.id.spinnerTemas);
@@ -421,16 +435,6 @@ public class MainActivity extends AppCompatActivity {
                 });
 
 
-
-
-
-
-
-
-
-
-
-
         prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
         boolean isFirstRun = prefs.getBoolean("is_first_run", true);
 
@@ -440,20 +444,24 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    //Tutorial Inicial
     private void showTurorial() {
 
         BottomNavigationView bottomNav = findViewById(R.id.bottomNavigationView);
         @SuppressLint("RestrictedApi") BottomNavigationMenuView menuView = (BottomNavigationMenuView) bottomNav.getChildAt(0);
 
-        // --- Mantenemos amigosItemView tal cual
+        // Obtengo objetos para ser señalados
         View amigosItemView = menuView.getChildAt(1);
         View feedItemView = menuView.getChildAt(2);
-        // Ejecutamos en post() para asegurar que las vistas del NavigationView estén listas
+
+        // Ejecuto código en post() para asegurar que las vistas del NavigationView estén listas
         navigationView.post(() -> {
             // Obtenemos la vista real del menu item del perfil
             View profileItemView = navigationView.findViewById(R.id.nav_profile);
             View customizeItemView = navigationView.findViewById(R.id.nav_theme);
 
+            //Comienzo del tutorial
             TapTargetSequence sequence = new TapTargetSequence(this)
                     .targets(
                             TapTarget.forView(findViewById(R.id.searchInput),
@@ -530,13 +538,6 @@ public class MainActivity extends AppCompatActivity {
                                 Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
                                 startActivity(intent);
 
-                                // Volver automáticamente después de 5 segundos
-                                new Handler().postDelayed(() -> {
-                                    // Terminar la actividad temporal y volver
-                                    finishActivity(intent.hashCode()); // opcional si usas startActivityForResult
-                                    // O si la actividad se autodestruye sola:
-                                    // TemporalActivity se cerrará en su onCreate o onResume
-                                }, 5000);
                             }
                             if (lastTarget.id() == 4) { // Paso de "Amigos"
                                 drawerLayout.closeDrawer(navigationView);
@@ -546,7 +547,7 @@ public class MainActivity extends AppCompatActivity {
 
                         @Override
                         public void onSequenceCanceled(TapTarget lastTarget) {
-                            Toast.makeText(MainActivity.this, "Tutorial cancelado", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, "Tutorial cancelled", Toast.LENGTH_SHORT).show();
                         }
                     });
 
@@ -554,7 +555,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
+    //Cambio de nombre de usuario (no la primera vez, al pulsar en el nombre de usuario al abrir el drawer)
     private void changeName() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) return;
@@ -573,6 +574,7 @@ public class MainActivity extends AppCompatActivity {
                 .setNegativeButton("Cancel", (d, w) -> d.dismiss())
                 .create();
 
+        //Se gestionan los espacios en blanco, símbolos y nombres repetidos para evitar duplicados.
         dialog.setOnShowListener(d -> {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
                 String newName = input.getText().toString().trim();
@@ -635,7 +637,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     private void openProfile() {
         Intent intent = new Intent(this, ProfileActivity.class);
         startActivity(intent);
@@ -651,18 +652,6 @@ public class MainActivity extends AppCompatActivity {
                     if (response.isSuccessful() && response.body() != null) {
                         animeList.clear();
                         animeList.addAll(response.body().data);
-
-                        // 🔹 Ordenar por fecha de estreno (de más reciente a más antiguo)
-                        animeList.sort((a1, a2) -> {
-                            Date d1 = a1.aired != null ? a1.aired.getFromDate() : null;
-                            Date d2 = a2.aired != null ? a2.aired.getFromDate() : null;
-
-                            if (d1 == null) return 1;   // si no hay fecha, va al final
-                            if (d2 == null) return -1;
-
-                            return d2.compareTo(d1);    // más reciente primero
-                        });
-
                         adapter.notifyDataSetChanged();
                     } else {
                         Toast.makeText(MainActivity.this, "No results", Toast.LENGTH_SHORT).show();
@@ -717,6 +706,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    //Gestión del feed
     private void loadFeed() {
         followManager.listenFollowing(followingUids -> {
             // Asegurarnos de incluir siempre el UID del usuario actual
@@ -750,7 +740,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
+    //Aquí se gestiona el dialog para seguir a los nuevos amigos
     private void showFriendsDialog() {
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_friends, (ViewGroup) findViewById(android.R.id.content), false);
 
@@ -762,7 +752,7 @@ public class MainActivity extends AppCompatActivity {
         UserAdapter userAdapter = new UserAdapter(userList, this, followManager);
         recyclerViewUsers.setAdapter(userAdapter);
 
-        // 🔹 Cargar los que sigues
+        //  Cargar los que sigues
         FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(currentUid)
@@ -779,7 +769,7 @@ public class MainActivity extends AppCompatActivity {
                 });
 
 
-        // 🔹 Buscar usuarios localmente (case-insensitive)
+        //  Buscar usuarios localmente (case-insensitive)
         editSearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -822,6 +812,7 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    //El primer cambio de nombre que aparece al iniciar la app para que cada usuario tenga un nombre único
     private void promptForNewName() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) return;
@@ -836,8 +827,8 @@ public class MainActivity extends AppCompatActivity {
                 .setTitle("Set your username")
                 .setMessage("Please enter a unique username:")
                 .setView(input)
-                .setCancelable(false) // ❌ El usuario no puede cerrar el diálogo hasta que rellene
-                .setPositiveButton("Save", null) // Lo manejamos después para evitar cierre automático
+                .setCancelable(false) //  El usuario no puede cerrar el diálogo hasta que rellene
+                .setPositiveButton("Save", null)
                 .create();
 
         dialog.setOnShowListener(d -> {

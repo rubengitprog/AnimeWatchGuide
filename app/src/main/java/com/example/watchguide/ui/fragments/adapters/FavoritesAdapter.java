@@ -1,4 +1,4 @@
-package com.example.watchguide;
+package com.example.watchguide.ui.fragments.adapters;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.watchguide.R;
 import com.example.watchguide.models.Anime;
 
 import java.util.List;

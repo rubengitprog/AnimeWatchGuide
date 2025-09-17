@@ -12,22 +12,22 @@
         android:theme="@style/Theme.WatchGuide"
         tools:targetApi="31">
         <activity
-            android:name=".LoginActivity"
+            android:name=".ui.fragments.activities.LoginActivity"
             android:exported="true">
 
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.fragments.activities.MainActivity"
             android:exported="true">
 
         </activity>
         <activity
-            android:name=".ProfileActivity"
+            android:name=".ui.fragments.activities.ProfileActivity"
             android:exported="true">
 
         </activity>
         <activity
-            android:name=".SplashActivity"
+            android:name=".ui.fragments.activities.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

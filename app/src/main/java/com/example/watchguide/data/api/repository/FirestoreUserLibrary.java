@@ -1,13 +1,13 @@
 
-package com.example.watchguide;
+package com.example.watchguide.data.api.repository;
 
 import com.example.watchguide.models.Anime;
+import com.example.watchguide.models.LibraryEntry;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -35,9 +35,6 @@ public class FirestoreUserLibrary {
         return db.collection("users").document(uid).collection("library");
     }
 
-    private CollectionReference activitiesCol() {
-        return db.collection("users").document(uid).collection("activities");
-    }
 
     //Escuchar en tiempo real los cambios en la colección users/{uid}/library
     public void listen(Listener listener) {
@@ -63,6 +60,8 @@ public class FirestoreUserLibrary {
         return cache;
     }
 
+
+    //Establecer anime como favorito
     public Task<Void> setFavorite(Anime anime, boolean fav) {
         String id = String.valueOf(anime.mal_id);
         Map<String, Object> data = new HashMap<>();
@@ -96,7 +95,7 @@ public class FirestoreUserLibrary {
     public Task<Void> setRating(Anime anime, float rating) {
         String id = String.valueOf(anime.mal_id);
 
-        // --- Guardar en librería personal ---
+        // Guardar el rating del anime
         Map<String, Object> data = new HashMap<>();
         data.put("rating", rating);
         data.put("watched", rating > 0);
@@ -106,7 +105,7 @@ public class FirestoreUserLibrary {
         data.put("updatedAt", System.currentTimeMillis());
         Task<Void> task = libraryCol().document(id).set(data, SetOptions.merge());
 
-        // --- Actualizar colección global con transaction ---
+        // Actualizar el rating global
         DocumentReference animeRef = FirebaseFirestore.getInstance()
                 .collection("anime")
                 .document(id);
@@ -152,7 +151,7 @@ public class FirestoreUserLibrary {
             return null;
         });
 
-        // --- Crear actividad ---
+        //Crea la actividad
         Map<String, Object> activity = new HashMap<>();
         activity.put("userId", uid);
         activity.put("userName", FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
@@ -173,7 +172,7 @@ public class FirestoreUserLibrary {
     }
 
 
-    // ---------------------- WATCHED ----------------------
+    //  Establecer como visto
     public Task<Void> setWatched(Anime anime, boolean watched) {
         String id = String.valueOf(anime.mal_id);
         Map<String, Object> data = new HashMap<>();
@@ -199,11 +198,5 @@ public class FirestoreUserLibrary {
         return task;
     }
 
-    public Task<QuerySnapshot> getFavoritesOnce() {
-        return libraryCol().whereEqualTo("favorite", true).get();
-    }
 
-    public void stop() {
-        if (reg != null) reg.remove();
-    }
 }

@@ -1,4 +1,4 @@
-package com.example.watchguide;
+package com.example.watchguide.data.api.repository;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -24,7 +24,7 @@ public class FirestoreFollowManager {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         Map<String, Object> data = new HashMap<>();
-        data.put("followedAt", System.currentTimeMillis()); // campo obligatorio
+        data.put("followedAt", System.currentTimeMillis());
 
         Task<Void> t1 = db.collection("users")
                 .document(uid)
@@ -41,25 +41,6 @@ public class FirestoreFollowManager {
         return Tasks.whenAll(t1, t2);
     }
 
-    // Dejar de seguir a un usuario
-    public Task<Void> unfollow(String targetUid) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-        Task<Void> t1 = db.collection("users")
-                .document(uid)
-                .collection("following")
-                .document(targetUid)
-                .delete();
-
-        Task<Void> t2 = db.collection("users")
-                .document(targetUid)
-                .collection("followers")
-                .document(uid)
-                .delete();
-
-        return Tasks.whenAll(t1, t2);
-    }
 
     // Comprobar si seguimos a alguien
     public Task<Boolean> isFollowing(String otherUid) {

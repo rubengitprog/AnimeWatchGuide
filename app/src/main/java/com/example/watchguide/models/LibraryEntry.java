@@ -1,4 +1,4 @@
-package com.example.watchguide;
+package com.example.watchguide.models;
 
 public class LibraryEntry {
     public String title;

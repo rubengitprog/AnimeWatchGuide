@@ -3,8 +3,6 @@
     <attr name="imagenMain" format="reference" />
     <attr name="secondaryImage" format="reference" />
     <attr name="hatImage" format="reference" />
-
-    <!-- Atributos personalizados para colores -->
     <attr name="colorBackground" format="color" />
     <attr name="colorBackgroundBlackAndWhite" format="color" />
     <attr name="colorCard" format="color" />

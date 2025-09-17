@@ -1,4 +1,4 @@
-package com.example.watchguide;
+package com.example.watchguide.ui.fragments.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,6 +10,10 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.watchguide.data.api.repository.FirestoreFollowManager;
+import com.example.watchguide.R;
+import com.example.watchguide.models.UserItem;
 
 import java.util.List;
 

@@ -5,7 +5,8 @@ public class FollowingItem {
     public String photoURL;
     public String uid; // el UID del usuario seguido
 
-    public FollowingItem() {}
+    public FollowingItem() {
+    }
 
     public FollowingItem(String uid, String username, String photoURL) {
         this.uid = uid;

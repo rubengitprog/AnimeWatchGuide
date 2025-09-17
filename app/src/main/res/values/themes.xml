@@ -3,12 +3,11 @@
     <!-- Base application theme -->
     <!-- Tema base -->
     <style name="Base.Theme.WatchGuide" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Colores Material 3 por defecto -->
+
         <item name="colorPrimary">@color/black</item>
         <item name="colorOnPrimary">@android:color/white</item>
         <item name="colorSecondary">@color/black</item>
         <item name="colorTextBlackAndWhite">@color/black</item>
-        <!-- Valores por defecto para tus atributos personalizados -->
         <item name="colorBackground">@android:color/white</item>
         <item name="colorCard">@android:color/darker_gray</item>
         <item name="colorTextPrimary">@android:color/black</item>
@@ -23,12 +22,12 @@
 
     <!-- Naruto -->
     <style name="TemaNaruto" parent="Base.Theme.WatchGuide">
-        <item name="colorPrimary">#FF9800</item> <!-- naranja traje -->
+        <item name="colorPrimary">#FF9800</item>
         <item name="hatImage">@drawable/narutohair</item>
-        <item name="colorSecondary">#1976D2</item> <!-- azul protector -->
+        <item name="colorSecondary">#1976D2</item>
         <item name="colorOnPrimary">#80FFFFFF</item>
         <item name="colorTextBlackAndWhite">@color/black</item>
-        <item name="colorBackground">#FFF3E0</item> <!-- beige cálido -->
+        <item name="colorBackground">#FFF3E0</item>
         <item name="colorCard">#FFE0B2</item>
         <item name="colorTextPrimary">#212121</item>
         <item name="colorTextSecondary">#424242</item>
@@ -39,12 +38,12 @@
 
     <!-- One Piece -->
     <style name="TemaOnePiece" parent="Base.Theme.WatchGuide">
-        <item name="colorPrimary">#2196F3</item> <!-- azul mar -->
+        <item name="colorPrimary">#2196F3</item>
         <item name="hatImage">@drawable/luffyhat</item>
-        <item name="colorSecondary">#FFD600</item> <!-- amarillo del sombrero -->
+        <item name="colorSecondary">#FFD600</item>
         <item name="colorOnPrimary">#80FFFFFF</item>
         <item name="colorTextBlackAndWhite">@color/black</item>
-        <item name="colorBackground">#E1F5FE</item> <!-- azul cielo claro -->
+        <item name="colorBackground">#E1F5FE</item>
         <item name="colorCard">#B3E5FC</item>
         <item name="colorTextPrimary">#0D47A1</item>
         <item name="colorTextSecondary">#1565C0</item>
@@ -55,11 +54,11 @@
 
     <!-- Dragon Ball -->
     <style name="TemaDragonBall" parent="Base.Theme.WatchGuide">
-        <item name="colorPrimary">#F57C00</item> <!-- naranja Goku -->
+        <item name="colorPrimary">#F57C00</item>
         <item name="colorTextBlackAndWhite">@color/black</item>
-        <item name="colorSecondary">#0288D1</item> <!-- azul uniforme -->
+        <item name="colorSecondary">#0288D1</item>
         <item name="colorOnPrimary">#80FFFFFF</item>
-        <item name="colorBackground">#FFFDE7</item> <!-- amarillo muy claro -->
+        <item name="colorBackground">#FFFDE7</item>
         <item name="colorCard">#FFF59D</item>
         <item name="colorTextPrimary">#212121</item>
         <item name="colorTextSecondary">#37474F</item>
@@ -71,11 +70,11 @@
 
     <!-- Bleach -->
     <style name="TemaBleach" parent="Base.Theme.WatchGuide">
-        <item name="colorPrimary">#212121</item> <!-- negro shinigami -->
+        <item name="colorPrimary">#212121</item>
         <item name="colorTextBlackAndWhite">@color/black</item>
-        <item name="colorSecondary">#FF3D00</item> <!-- rojo zanpakuto -->
+        <item name="colorSecondary">#FF3D00</item>
         <item name="colorOnPrimary">#80FFFFFF</item>
-        <item name="colorBackground">#FAFAFA</item> <!-- blanco muy claro -->
+        <item name="colorBackground">#FAFAFA</item>
         <item name="colorCard">#EEEEEE</item>
         <item name="colorTextPrimary">#212121</item>
         <item name="colorTextSecondary">#757575</item>
@@ -87,11 +86,11 @@
 
     <!-- Kimetsu no Yaiba -->
     <style name="TemaKimetsu" parent="Base.Theme.WatchGuide">
-        <item name="colorPrimary">#2E7D32</item> <!-- verde haori Tanjiro -->
+        <item name="colorPrimary">#2E7D32</item>
         <item name="colorTextBlackAndWhite">@color/black</item>
-        <item name="colorSecondary">#C62828</item> <!-- rojo sangre -->
+        <item name="colorSecondary">#C62828</item>
         <item name="colorOnPrimary">#80FFFFFF</item>
-        <item name="colorBackground">#E8F5E9</item> <!-- verde muy suave -->
+        <item name="colorBackground">#E8F5E9</item>
         <item name="colorCard">#C8E6C9</item>
         <item name="colorTextPrimary">#212121</item>
         <item name="colorTextSecondary">#424242</item>
@@ -100,7 +99,6 @@
         <item name="hatImage">@drawable/kimetsuhair</item>
         <item name="colorBackgroundBlackAndWhite">@color/white</item>
     </style>
-
 
 
 </resources>

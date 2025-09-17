@@ -1,4 +1,4 @@
-package com.example.watchguide;
+package com.example.watchguide.ui.fragments.adapters;
 
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.watchguide.R;
+import com.example.watchguide.ui.fragments.activities.ProfileActivity;
 import com.example.watchguide.models.FollowingItem;
 
 import java.util.List;

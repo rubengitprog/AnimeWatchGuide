@@ -1,4 +1,4 @@
-package com.example.watchguide;
+package com.example.watchguide.data.api;
 
 import com.example.watchguide.models.AnimeResponse;
 
@@ -15,7 +15,6 @@ public interface AnimeApi {
 
     @GET("anime")
     Call<AnimeResponse> searchAnimeWithGenre(@Query("q") String query, @Query("genres") int genreId);
-
 
 
 }

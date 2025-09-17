@@ -1,4 +1,4 @@
-package com.example.watchguide;
+package com.example.watchguide.ui.fragments.activities;
 
 import android.animation.Animator;
 import android.content.Intent;
@@ -7,6 +7,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.example.watchguide.R;
 
 public class SplashActivity extends AppCompatActivity {
 
