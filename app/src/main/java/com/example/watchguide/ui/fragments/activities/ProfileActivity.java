@@ -92,7 +92,7 @@ public class ProfileActivity extends AppCompatActivity {
                 deleteEnabled = isChecked;
                 prefs.edit().putBoolean("deleteEnabled", isChecked).apply();
                 Toast.makeText(this,
-                        isChecked ? "Eliminación activada" : "Eliminación desactivada",
+                        isChecked ? "You can delete anime from list" : "Erase Off",
                         Toast.LENGTH_SHORT).show();
 
                 // Recargar fragment actual con el nuevo estado
