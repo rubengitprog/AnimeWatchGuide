@@ -33,6 +33,8 @@ android {
 }
 
 dependencies {
+
+    implementation(libs.taptargetview)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.glide)

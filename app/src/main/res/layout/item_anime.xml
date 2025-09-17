@@ -52,22 +52,20 @@
 
         <ImageView
             android:id="@+id/favButton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:src="@android:drawable/btn_star_big_off"
             android:contentDescription="Favorite"
             android:layout_marginEnd="8dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonSeen"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@null"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+          app:iconGravity="textStart"
             android:icon="@drawable/ojoabierto"
             android:scaleType="fitCenter"
             android:contentDescription="Reset"
-            style="@style/Widget.Material3.Button.Icon"
-
             android:padding="4dp"
             android:clickable="true"
             android:focusable="true" />
@@ -79,8 +77,7 @@
             android:layout_gravity="end|bottom"
             android:layout_margin="16dp"
             app:srcCompat="@drawable/reiniciar"
-            app:tint="@android:color/white"
-            app:backgroundTint="@color/black"
+            android:scaleType="fitCenter"
             app:elevation="8dp" />
 
 

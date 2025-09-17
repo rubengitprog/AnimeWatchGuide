@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
@@ -27,6 +28,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.getkeepsafe.taptargetview.TapTarget;
+import com.getkeepsafe.taptargetview.TapTargetSequence;
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.appcheck.FirebaseAppCheck;
@@ -51,6 +55,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,7 +83,10 @@ public class MainActivity extends AppCompatActivity {
     private FirestoreFollowManager followManager;
     private int activeGenreId = -1; // -1 significa que no hay filtro activo
     private TextInputLayout inputLayout;
-
+    private NavigationView navigationView;
+    private DrawerLayout drawerLayout;
+    
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -141,8 +149,6 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
 
-
-
         adapter = new AnimeAdapter(animeList, this, userLibrary);
         recyclerView.setAdapter(adapter);
         DividerItemDecoration divider = new DividerItemDecoration(
@@ -166,13 +172,16 @@ public class MainActivity extends AppCompatActivity {
         api = retrofit.create(AnimeApi.class);
 
 
-
         String initialSearch = prefs.getString("initialSearch", "One Piece");
         handler.postDelayed(() -> searchAnime(initialSearch), 300);
 
         searchInput.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String query = s.toString().trim();
                 if (recyclerViewFeed.getVisibility() == View.VISIBLE) {
                     recyclerView.setVisibility(View.VISIBLE);
@@ -189,19 +198,22 @@ public class MainActivity extends AppCompatActivity {
                 };
                 handler.postDelayed(searchRunnable, 500);
             }
-            @Override public void afterTextChanged(Editable s) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
         });
         MaterialButton btnFilter = findViewById(R.id.btnFilter);
         btnFilter.setOnClickListener(v -> {
-            String[] categories = { "Remove Filter","Action","Adventure","Cars","Comedy","Dementia",
-                    "Demons","Mystery","Drama","Ecchi","Fantasy","Game","Hentai","Historical",
-                    "Horror","Kids","Magic","Martial Arts","Mecha","Music","Parody","Samurai",
-                    "Romance","School","Sci-Fi","Shoujo","Shoujo Ai","Shounen","Shounen Ai","Space",
-                    "Sports","Super Power","Vampires","Yaoi","Yuri","Harem","Slice of Life",
-                    "Supernatural","Military","Police","Psychological","Thriller","Seinen","Josei",
+            String[] categories = {"Remove Filter", "Action", "Adventure", "Cars", "Comedy", "Dementia",
+                    "Demons", "Mystery", "Drama", "Ecchi", "Fantasy", "Game", "Hentai", "Historical",
+                    "Horror", "Kids", "Magic", "Martial Arts", "Mecha", "Music", "Parody", "Samurai",
+                    "Romance", "School", "Sci-Fi", "Shoujo", "Shoujo Ai", "Shounen", "Shounen Ai", "Space",
+                    "Sports", "Super Power", "Vampires", "Yaoi", "Yuri", "Harem", "Slice of Life",
+                    "Supernatural", "Military", "Police", "Psychological", "Thriller", "Seinen", "Josei",
                     "Remove filter"};
-            int[] categoryIds = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,
-                    25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,-1};
+            int[] categoryIds = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+                    25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, -1};
 
             new AlertDialog.Builder(MainActivity.this)
                     .setTitle("Select category")
@@ -249,8 +261,8 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         // Menu lateral
-        DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
-        NavigationView navigationView = findViewById(R.id.navigationView);
+        drawerLayout = findViewById(R.id.drawerLayout);
+        navigationView = findViewById(R.id.navigationView);
 
         View headerView = navigationView.getHeaderView(0);
         ImageView headerImage = headerView.findViewById(R.id.headerImage);
@@ -349,14 +361,32 @@ public class MainActivity extends AppCompatActivity {
                         .setPositiveButton("Apply", (dialog, which) -> {
                             int pos = spinner.getSelectedItemPosition();
                             int nuevoTema;
-                            String initialSearch2=" ";
+                            String initialSearch2 = " ";
                             switch (pos) {
-                                case 0: nuevoTema = R.style.TemaNaruto; initialSearch2="Naruto"; break;
-                                case 1: nuevoTema = R.style.TemaOnePiece; initialSearch2="One Piece";break;
-                                case 2: nuevoTema = R.style.TemaBleach;initialSearch2="Bleach"; break;
-                                case 3: nuevoTema = R.style.TemaDragonBall; initialSearch2="Dragon Ball Z";break;
-                                case 4: nuevoTema = R.style.TemaKimetsu;initialSearch2="Kimetsu"; break;
-                                default: nuevoTema = R.style.TemaOnePiece;initialSearch2="One Piece"; break;
+                                case 0:
+                                    nuevoTema = R.style.TemaNaruto;
+                                    initialSearch2 = "Naruto";
+                                    break;
+                                case 1:
+                                    nuevoTema = R.style.TemaOnePiece;
+                                    initialSearch2 = "One Piece";
+                                    break;
+                                case 2:
+                                    nuevoTema = R.style.TemaBleach;
+                                    initialSearch2 = "Bleach";
+                                    break;
+                                case 3:
+                                    nuevoTema = R.style.TemaDragonBall;
+                                    initialSearch2 = "Dragon Ball Z";
+                                    break;
+                                case 4:
+                                    nuevoTema = R.style.TemaKimetsu;
+                                    initialSearch2 = "Kimetsu";
+                                    break;
+                                default:
+                                    nuevoTema = R.style.TemaOnePiece;
+                                    initialSearch2 = "One Piece";
+                                    break;
                             }
 
                             getSharedPreferences("MisTemas", MODE_PRIVATE)
@@ -390,6 +420,138 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
+
+
+
+
+
+
+
+
+
+
+
+        prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
+        boolean isFirstRun = prefs.getBoolean("is_first_run", true);
+
+        if (isFirstRun) {
+            showTurorial();
+            prefs.edit().putBoolean("is_first_run", false).apply();
+        }
+    }
+
+    private void showTurorial() {
+
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNavigationView);
+        @SuppressLint("RestrictedApi") BottomNavigationMenuView menuView = (BottomNavigationMenuView) bottomNav.getChildAt(0);
+
+        // --- Mantenemos amigosItemView tal cual
+        View amigosItemView = menuView.getChildAt(1);
+        View feedItemView = menuView.getChildAt(2);
+        // Ejecutamos en post() para asegurar que las vistas del NavigationView estén listas
+        navigationView.post(() -> {
+            // Obtenemos la vista real del menu item del perfil
+            View profileItemView = navigationView.findViewById(R.id.nav_profile);
+            View customizeItemView = navigationView.findViewById(R.id.nav_theme);
+
+            TapTargetSequence sequence = new TapTargetSequence(this)
+                    .targets(
+                            TapTarget.forView(findViewById(R.id.searchInput),
+                                            "Search bar",
+                                            "Here you can search for your favorite anime and then rate them, mark them as watched, or favorite them.")
+                                    .id(0)
+                                    .outerCircleColor(R.color.naruto_naranja)
+                                    .targetCircleColor(android.R.color.white)
+                                    .titleTextColor(android.R.color.white)
+                                    .descriptionTextColor(android.R.color.white)
+                                    .cancelable(false),
+
+                            TapTarget.forView(findViewById(R.id.btnFilter),
+                                            "Filtrar",
+                                            "Use this option to filter results by genre.")
+                                    .id(1)
+                                    .outerCircleColor(R.color.naruto_naranja)
+                                    .targetCircleColor(android.R.color.white)
+                                    .titleTextColor(android.R.color.white)
+                                    .descriptionTextColor(android.R.color.white)
+                                    .cancelable(false),
+
+                            TapTarget.forView(amigosItemView,
+                                            "Friends",
+                                            "In this section you can search and follow your friends.")
+                                    .id(2)
+                                    .outerCircleColor(R.color.naruto_naranja)
+                                    .targetCircleColor(android.R.color.white)
+                                    .titleTextColor(android.R.color.white)
+                                    .descriptionTextColor(android.R.color.white)
+                                    .cancelable(false),
+
+                            TapTarget.forView(profileItemView,
+                                            "Profile",
+                                            "Here's your profile, where you'll find a record of your anime and can visit the profiles of the people you follow. You'll now see a preview of your profile.")
+                                    .id(3)
+                                    .outerCircleColor(R.color.naruto_naranja)
+                                    .targetCircleColor(android.R.color.white)
+                                    .titleTextColor(android.R.color.white)
+                                    .descriptionTextColor(android.R.color.white)
+                                    .cancelable(false),
+                            TapTarget.forView(customizeItemView,
+                                            "Customize theme",
+                                            "You can also change the appearance of the app and your profile.")
+                                    .id(4)
+                                    .outerCircleColor(R.color.naruto_naranja)
+                                    .targetCircleColor(android.R.color.white)
+                                    .titleTextColor(android.R.color.white)
+                                    .descriptionTextColor(android.R.color.white)
+                                    .cancelable(false),
+                            TapTarget.forView(feedItemView,
+                                            "Feed",
+                                            "And finally, in this section you will find the record of your activity" + " and that of the people you follow. Right now it is empty since your story is about to begin :)")
+                                    .id(5)
+                                    .outerCircleColor(R.color.naruto_naranja)
+                                    .targetCircleColor(android.R.color.white)
+                                    .titleTextColor(android.R.color.white)
+                                    .descriptionTextColor(android.R.color.white)
+                                    .cancelable(false)
+                    )
+                    .listener(new TapTargetSequence.Listener() {
+                        @Override
+                        public void onSequenceFinish() {
+                            Toast.makeText(MainActivity.this, "¡Tutorial completed, enjoy!", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onSequenceStep(TapTarget lastTarget, boolean targetClicked) {
+                            if (lastTarget.id() == 2) { // Paso de "Amigos"
+                                drawerLayout.openDrawer(navigationView);
+                            }
+                            if (lastTarget.id() == 3) {
+                                // Lanzar la actividad
+                                Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+                                startActivity(intent);
+
+                                // Volver automáticamente después de 5 segundos
+                                new Handler().postDelayed(() -> {
+                                    // Terminar la actividad temporal y volver
+                                    finishActivity(intent.hashCode()); // opcional si usas startActivityForResult
+                                    // O si la actividad se autodestruye sola:
+                                    // TemporalActivity se cerrará en su onCreate o onResume
+                                }, 5000);
+                            }
+                            if (lastTarget.id() == 4) { // Paso de "Amigos"
+                                drawerLayout.closeDrawer(navigationView);
+                            }
+
+                        }
+
+                        @Override
+                        public void onSequenceCanceled(TapTarget lastTarget) {
+                            Toast.makeText(MainActivity.this, "Tutorial cancelado", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+            sequence.start();
+        });
     }
 
 
@@ -399,7 +561,6 @@ public class MainActivity extends AppCompatActivity {
 
         String uid = user.getUid();
 
-        // Crear un EditText dentro de un AlertDialog
         EditText input = new EditText(this);
         input.setHint("New username");
 
@@ -407,8 +568,8 @@ public class MainActivity extends AppCompatActivity {
                 .setTitle("Change your username")
                 .setMessage("Username:")
                 .setView(input)
-                .setCancelable(false) // El usuario no puede cerrar hasta que ponga un nombre válido
-                .setPositiveButton("Save", null) // Lo manejamos después para evitar cierre automático
+                .setCancelable(false)
+                .setPositiveButton("Save", null)
                 .setNegativeButton("Cancel", (d, w) -> d.dismiss())
                 .create();
 
@@ -421,16 +582,33 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
-                // Comprobar que no exista ya en Firestore
+                // Validar: solo letras y números
+                if (!newName.matches("[a-zA-Z0-9]+")) {
+                    Toast.makeText(this, "Username can only contain letters and numbers", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Normalizar para la comparación: minúsculas
+                String normalizedNewName = newName.toLowerCase();
+
+                // Comprobar duplicados en Firestore
                 FirebaseFirestore.getInstance()
                         .collection("users")
-                        .whereEqualTo("username", newName)
                         .get()
                         .addOnSuccessListener(snap -> {
-                            if (!snap.isEmpty()) {
+                            boolean exists = false;
+                            for (var doc : snap.getDocuments()) {
+                                String existingName = doc.getString("username");
+                                if (existingName != null && existingName.toLowerCase().equals(normalizedNewName)) {
+                                    exists = true;
+                                    break;
+                                }
+                            }
+
+                            if (exists) {
                                 Toast.makeText(this, "Username already exists, choose another", Toast.LENGTH_SHORT).show();
                             } else {
-                                // Guardar en Firestore
+                                // Guardar el nombre original si es válido
                                 FirebaseFirestore.getInstance()
                                         .collection("users")
                                         .document(uid)
@@ -438,22 +616,18 @@ public class MainActivity extends AppCompatActivity {
                                         .addOnSuccessListener(aVoid -> {
                                             Toast.makeText(this, "Name updated", Toast.LENGTH_SHORT).show();
 
-                                            // Actualizar el Navigation Drawer
+                                            // Actualizar Navigation Drawer
                                             NavigationView navigationView = findViewById(R.id.navigationView);
                                             View headerView = navigationView.getHeaderView(0);
                                             TextView headerName = headerView.findViewById(R.id.headerTitle);
                                             headerName.setText(newName);
 
-                                            dialog.dismiss(); // ✅ Solo cerramos si es válido y único
+                                            dialog.dismiss();
                                         })
-                                        .addOnFailureListener(e -> {
-                                            Toast.makeText(this, "Error updating name", Toast.LENGTH_SHORT).show();
-                                        });
+                                        .addOnFailureListener(e -> Toast.makeText(this, "Error updating name", Toast.LENGTH_SHORT).show());
                             }
                         })
-                        .addOnFailureListener(e -> {
-                            Toast.makeText(this, "Error checking username", Toast.LENGTH_SHORT).show();
-                        });
+                        .addOnFailureListener(e -> Toast.makeText(this, "Error checking username", Toast.LENGTH_SHORT).show());
             });
         });
 
@@ -477,6 +651,18 @@ public class MainActivity extends AppCompatActivity {
                     if (response.isSuccessful() && response.body() != null) {
                         animeList.clear();
                         animeList.addAll(response.body().data);
+
+                        // 🔹 Ordenar por fecha de estreno (de más reciente a más antiguo)
+                        animeList.sort((a1, a2) -> {
+                            Date d1 = a1.aired != null ? a1.aired.getFromDate() : null;
+                            Date d2 = a2.aired != null ? a2.aired.getFromDate() : null;
+
+                            if (d1 == null) return 1;   // si no hay fecha, va al final
+                            if (d2 == null) return -1;
+
+                            return d2.compareTo(d1);    // más reciente primero
+                        });
+
                         adapter.notifyDataSetChanged();
                     } else {
                         Toast.makeText(MainActivity.this, "No results", Toast.LENGTH_SHORT).show();
@@ -596,10 +782,12 @@ public class MainActivity extends AppCompatActivity {
         // 🔹 Buscar usuarios localmente (case-insensitive)
         editSearch.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -633,6 +821,7 @@ public class MainActivity extends AppCompatActivity {
         btnClose.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
     }
+
     private void promptForNewName() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) return;
