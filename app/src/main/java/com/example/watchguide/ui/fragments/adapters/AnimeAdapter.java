@@ -62,7 +62,8 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
                 .addOnSuccessListener(doc -> {
                     if (doc.exists() && doc.contains("averageRating")) {
                         double avg = doc.getDouble("averageRating");
-                        holder.averageRating.setText("Nota: " + String.format("%.1f", avg));
+                        int total = doc.getLong("ratingCount").intValue();
+                        holder.averageRating.setText("Nota: " + String.format("%.1f", avg) + " " + "("+total +")");
                     } else {
                         holder.averageRating.setText("Nota: -"); // no hay aún valoraciones
                     }
@@ -150,7 +151,8 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
                                                                     .addOnSuccessListener(doc -> {
                                                                         if (doc.exists() && doc.contains("averageRating")) {
                                                                             double avg = doc.getDouble("averageRating");
-                                                                            holder.averageRating.setText("Nota: " + String.format("%.1f", avg));
+                                                                            int total = doc.getLong("ratingCount").intValue();
+                                                                            holder.averageRating.setText("Nota: " + String.format("%.1f", avg) + " " + "("+total +")");
                                                                         } else {
                                                                             holder.averageRating.setText("Nota: -");
                                                                         }
