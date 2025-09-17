@@ -108,7 +108,7 @@ public class LoginActivity extends AppCompatActivity {
                                         } else {
                                             // Si el usuario ya existe recuperamos lo que haya guardado en firestore
                                             String username = document.getString("username");
-                                            Toast.makeText(this, "Welcomeback " + username, Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(this, "Welcome back " + username, Toast.LENGTH_SHORT).show();
                                         }
 
                                         startActivity(new Intent(LoginActivity.this, MainActivity.class));
