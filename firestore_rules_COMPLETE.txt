@@ -1,0 +1,76 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Función helper para verificar si es admin
+    function isAdmin() {
+      return request.auth != null &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Colección de usuarios
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+
+      match /library/{docId} {
+        allow read: if request.auth != null;
+        allow write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      match /watched/{docId} {
+        allow read: if request.auth != null;
+        allow write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      match /following/{targetId} {
+        allow read: if request.auth != null;
+        allow create, update, delete: if request.auth != null && request.auth.uid == userId;
+      }
+
+      match /followers/{followerId} {
+        allow read: if request.auth != null;
+        allow create, update, delete: if request.auth != null && request.auth.uid == followerId;
+      }
+
+      match /activities/{activityId} {
+        allow read: if request.auth != null;
+        allow create, update, delete: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // Colección de anime (ratings globales)
+    match /anime/{animeId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // Colección de reviews
+    match /reviews/{reviewId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      // Usuario puede modificar/eliminar su propia review O admin puede eliminar cualquiera
+      allow update, delete: if request.auth != null &&
+                              (request.auth.uid == resource.data.userId || isAdmin());
+    }
+
+    // Colección de reportes
+    match /reports/{reportId} {
+      allow read: if request.auth != null && isAdmin();
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && isAdmin();
+      allow delete: if false;
+    }
+
+  }
+}
+
+// Reglas para Storage (si usas Firebase Storage para fotos de perfil)
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /users/{userId}/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

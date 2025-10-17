@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardBackgroundColor="?attr/colorBackgroundBlackAndWhite"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Título del reporte -->
+        <TextView
+            android:id="@+id/textReportReason"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Reason: Spam"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorTextBlackAndWhite" />
+
+        <!-- Descripción -->
+        <TextView
+            android:id="@+id/textReportDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Description here"
+            android:textSize="14sp"
+            android:textColor="?attr/colorTextBlackAndWhite"
+            android:alpha="0.8" />
+
+        <!-- Información del reportante -->
+        <TextView
+            android:id="@+id/textReportedBy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Reported by: Username"
+            android:textSize="12sp"
+            android:textColor="?attr/colorTextBlackAndWhite"
+            android:alpha="0.6" />
+
+        <!-- Contenido reportado (review) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="vertical"
+            android:background="@drawable/username_badge"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Reported Review:"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="?attr/colorTextBlackAndWhite"
+                android:alpha="0.7" />
+
+            <TextView
+                android:id="@+id/textReviewContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Review text content..."
+                android:textSize="14sp"
+                android:textColor="?attr/colorTextBlackAndWhite"
+                android:textStyle="italic" />
+        </LinearLayout>
+
+        <!-- Botones de acción -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            android:gravity="end">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDeleteReview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Delete Review"
+                android:textSize="12sp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                app:strokeColor="#F44336"
+                android:textColor="#F44336" />
+
+            <Space
+                android:layout_width="8dp"
+                android:layout_height="1dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnMarkResolved"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mark Resolved"
+                android:textSize="12sp"
+                android:backgroundTint="#4CAF50" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
