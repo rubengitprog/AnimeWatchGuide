@@ -39,10 +39,16 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
     private final List<Review> reviewList;
     private final Context context;
     private final String currentUserId;
+    private final boolean showAnimeInfo;
 
     public ReviewAdapter(List<Review> reviewList, Context context) {
+        this(reviewList, context, true);
+    }
+
+    public ReviewAdapter(List<Review> reviewList, Context context, boolean showAnimeInfo) {
         this.reviewList = reviewList;
         this.context = context;
+        this.showAnimeInfo = showAnimeInfo;
         this.currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null
             ? FirebaseAuth.getInstance().getCurrentUser().getUid()
             : "";
@@ -82,28 +88,34 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
         String dateText = sdf.format(new Date(review.timestamp));
         holder.reviewDate.setText(dateText);
 
-        // Mostrar información del anime
-        if (review.animeTitle != null && !review.animeTitle.isEmpty()) {
-            holder.reviewAnimeTitle.setText(review.animeTitle);
+        // Mostrar información del anime solo si showAnimeInfo es true
+        if (showAnimeInfo) {
+            holder.animeInfoContainer.setVisibility(View.VISIBLE);
+
+            if (review.animeTitle != null && !review.animeTitle.isEmpty()) {
+                holder.reviewAnimeTitle.setText(review.animeTitle);
+            } else {
+                holder.reviewAnimeTitle.setText("Unknown Anime");
+            }
+
+            if (review.animeImageUrl != null && !review.animeImageUrl.isEmpty()) {
+                Glide.with(context)
+                        .load(review.animeImageUrl)
+                        .placeholder(R.drawable.ic_launcher_background)
+                        .into(holder.reviewAnimeImage);
+            }
+
+            // Click listener para abrir AnimeDetailActivity
+            holder.animeInfoContainer.setOnClickListener(v -> {
+                Intent intent = new Intent(context, AnimeDetailActivity.class);
+                intent.putExtra("animeId", review.animeId);
+                intent.putExtra("animeTitle", review.animeTitle);
+                intent.putExtra("animeImageUrl", review.animeImageUrl);
+                context.startActivity(intent);
+            });
         } else {
-            holder.reviewAnimeTitle.setText("Unknown Anime");
+            holder.animeInfoContainer.setVisibility(View.GONE);
         }
-
-        if (review.animeImageUrl != null && !review.animeImageUrl.isEmpty()) {
-            Glide.with(context)
-                    .load(review.animeImageUrl)
-                    .placeholder(R.drawable.ic_launcher_background)
-                    .into(holder.reviewAnimeImage);
-        }
-
-        // Click listener para abrir AnimeDetailActivity
-        holder.animeInfoContainer.setOnClickListener(v -> {
-            Intent intent = new Intent(context, AnimeDetailActivity.class);
-            intent.putExtra("animeId", review.animeId);
-            intent.putExtra("animeTitle", review.animeTitle);
-            intent.putExtra("animeImageUrl", review.animeImageUrl);
-            context.startActivity(intent);
-        });
 
         // Mostrar contadores de likes/dislikes/respuestas
         holder.reviewLikeCount.setText(String.valueOf(review.likeCount));

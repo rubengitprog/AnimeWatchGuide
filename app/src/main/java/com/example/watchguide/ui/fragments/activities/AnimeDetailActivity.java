@@ -16,8 +16,11 @@ import com.example.watchguide.R;
 import com.example.watchguide.data.api.AnimeApi;
 import com.example.watchguide.models.Anime;
 import com.example.watchguide.models.AnimeDetailResponse;
+import com.example.watchguide.models.RecommendationEntry;
+import com.example.watchguide.models.RecommendationsResponse;
 import com.example.watchguide.models.Review;
 
+import com.example.watchguide.ui.fragments.adapters.RecommendationAdapter;
 import com.example.watchguide.ui.fragments.adapters.ReviewAdapter;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -45,6 +48,11 @@ public class AnimeDetailActivity extends AppCompatActivity {
     private RecyclerView recyclerViewReviews;
     private ReviewAdapter reviewAdapter;
     private List<Review> reviewList = new ArrayList<>();
+
+    private TextView textRecommendationsTitle;
+    private RecyclerView recyclerViewRecommendations;
+    private RecommendationAdapter recommendationAdapter;
+    private List<RecommendationEntry> recommendationList = new ArrayList<>();
 
     private int animeId;
     private String animeTitle;
@@ -197,14 +205,23 @@ public class AnimeDetailActivity extends AppCompatActivity {
             animeRatingDetail.setVisibility(View.GONE);
         }
 
-        // Configurar RecyclerView
+        // Configurar RecyclerView de reviews
         recyclerViewReviews.setLayoutManager(new LinearLayoutManager(this));
-        reviewAdapter = new ReviewAdapter(reviewList, this);
+        reviewAdapter = new ReviewAdapter(reviewList, this, false); // No mostrar info del anime
         recyclerViewReviews.setAdapter(reviewAdapter);
+
+        // Configurar RecyclerView de recomendaciones (horizontal)
+        textRecommendationsTitle = findViewById(R.id.textRecommendationsTitle);
+        recyclerViewRecommendations = findViewById(R.id.recyclerViewRecommendations);
+        recyclerViewRecommendations.setLayoutManager(
+                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        recommendationAdapter = new RecommendationAdapter(recommendationList, this);
+        recyclerViewRecommendations.setAdapter(recommendationAdapter);
 
         // Cargar datos
         loadAverageRating();
         loadReviews();
+        loadRecommendations();
     }
 
     private void loadAverageRating() {
@@ -406,6 +423,56 @@ public class AnimeDetailActivity extends AppCompatActivity {
                     animeSynopsisDetail.setText("No synopsis available");
                     Toast.makeText(AnimeDetailActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 });
+            }
+        });
+    }
+
+    private void loadRecommendations() {
+        // Configurar Retrofit
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(logging)
+                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://api.jikan.moe/v4/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(client)
+                .build();
+
+        AnimeApi api = retrofit.create(AnimeApi.class);
+
+        // Hacer la llamada a la API
+        api.getAnimeRecommendations(animeId).enqueue(new Callback<RecommendationsResponse>() {
+            @Override
+            public void onResponse(Call<RecommendationsResponse> call, Response<RecommendationsResponse> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().data != null) {
+                    recommendationList.clear();
+
+                    // Limitar a 10 recomendaciones
+                    int count = Math.min(response.body().data.size(), 10);
+                    for (int i = 0; i < count; i++) {
+                        recommendationList.add(response.body().data.get(i));
+                    }
+
+                    runOnUiThread(() -> {
+                        if (!recommendationList.isEmpty()) {
+                            textRecommendationsTitle.setVisibility(View.VISIBLE);
+                            recyclerViewRecommendations.setVisibility(View.VISIBLE);
+                            recommendationAdapter.notifyDataSetChanged();
+                        }
+                    });
+                } else {
+                    Log.d("AnimeDetail", "No recommendations available or API error");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RecommendationsResponse> call, Throwable t) {
+                Log.e("AnimeDetail", "Error loading recommendations from API", t);
+                // No mostrar error al usuario, las recomendaciones son opcionales
             }
         });
     }

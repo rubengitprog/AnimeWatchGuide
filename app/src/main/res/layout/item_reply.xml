@@ -7,7 +7,7 @@
     android:layout_marginStart="32dp"
     app:cardElevation="2dp"
     app:cardCornerRadius="8dp"
-    app:cardBackgroundColor="#F5F5F5">
+    app:cardBackgroundColor="?attr/colorBackground">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -117,7 +117,8 @@
                 android:layout_weight="1"
                 android:text="01/01/2025"
                 android:textSize="11sp"
-                android:textColor="@android:color/darker_gray"
+                android:textColor="?attr/colorTextBlackAndWhite"
+                android:alpha="0.6"
                 android:gravity="end" />
 
         </LinearLayout>

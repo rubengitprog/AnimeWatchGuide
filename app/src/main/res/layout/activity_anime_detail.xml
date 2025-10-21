@@ -198,6 +198,30 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="16dp" />
 
+        <!-- Sección de Recomendaciones -->
+        <TextView
+            android:id="@+id/textRecommendationsTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Recommended Anime"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorTextBlackAndWhite"
+            android:layout_marginBottom="12dp"
+            android:visibility="gone" />
+
+        <!-- RecyclerView horizontal para recomendaciones -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewRecommendations"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            android:clipToPadding="false"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:layout_marginBottom="24dp" />
+
         <!-- Título de reviews -->
         <TextView
             android:layout_width="wrap_content"
@@ -223,7 +247,8 @@
             android:text="No reviews yet. Be the first to rate this anime!"
             android:textSize="14sp"
             android:textStyle="italic"
-            android:textColor="@android:color/darker_gray"
+            android:textColor="?attr/colorTextBlackAndWhite"
+            android:alpha="0.6"
             android:layout_gravity="center"
             android:padding="16dp"
             android:visibility="gone" />
