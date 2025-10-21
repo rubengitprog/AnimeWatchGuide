@@ -43,40 +43,77 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ViewHolder
         holder.textDescription.setText(report.description != null ? report.description : "No description");
         holder.textReportedBy.setText("Reported by: " + report.reportedByUsername);
 
-        // Cargar el contenido de la review reportada
+        // Cargar el contenido según el tipo de reporte
+        String collectionName = "reply".equals(report.contentType) ? "replies" : "reviews";
+        String fieldName = "reply".equals(report.contentType) ? "replyText" : "reviewText";
+
         FirebaseFirestore.getInstance()
-                .collection("reviews")
+                .collection(collectionName)
                 .document(report.contentId)
                 .get()
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
-                        String reviewText = doc.getString("reviewText");
-                        holder.textReviewContent.setText(reviewText != null ? reviewText : "Review not found");
+                        String contentText = doc.getString(fieldName);
+                        String typeLabel = "reply".equals(report.contentType) ? "Reply" : "Review";
+                        holder.textReviewContent.setText(contentText != null ? contentText : typeLabel + " not found");
                     } else {
-                        holder.textReviewContent.setText("Review not found");
+                        String typeLabel = "reply".equals(report.contentType) ? "Reply" : "Review";
+                        holder.textReviewContent.setText(typeLabel + " not found");
                     }
                 });
 
-        // Botón para eliminar la review
+        // Botón para eliminar el contenido reportado
         holder.btnDeleteReview.setOnClickListener(v -> {
-            new AlertDialog.Builder(context)
-                    .setTitle("Delete Review")
-                    .setMessage("Are you sure you want to delete this review permanently?")
-                    .setPositiveButton("Delete", (dialog, which) -> {
-                        // Eliminar la review de Firebase
-                        FirebaseFirestore.getInstance()
-                                .collection("reviews")
-                                .document(report.contentId)
-                                .delete()
-                                .addOnSuccessListener(aVoid -> {
-                                    Toast.makeText(context, "Review deleted", Toast.LENGTH_SHORT).show();
+            String contentTypeLabel = "reply".equals(report.contentType) ? "Reply" : "Review";
+            String collectionToDelete = "reply".equals(report.contentType) ? "replies" : "reviews";
 
-                                    // Marcar el reporte como resuelto
-                                    markReportAsResolved(report, position);
-                                })
-                                .addOnFailureListener(e -> {
-                                    Toast.makeText(context, "Error deleting review: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                });
+            new AlertDialog.Builder(context)
+                    .setTitle("Delete " + contentTypeLabel)
+                    .setMessage("Are you sure you want to delete this " + contentTypeLabel.toLowerCase() + " permanently?")
+                    .setPositiveButton("Delete", (dialog, which) -> {
+                        // Si es una reply, obtener el reviewId antes de eliminar
+                        if ("reply".equals(report.contentType)) {
+                            FirebaseFirestore.getInstance()
+                                    .collection("replies")
+                                    .document(report.contentId)
+                                    .get()
+                                    .addOnSuccessListener(replyDoc -> {
+                                        String reviewId = replyDoc.exists() ? replyDoc.getString("reviewId") : null;
+
+                                        // Eliminar la reply
+                                        FirebaseFirestore.getInstance()
+                                                .collection("replies")
+                                                .document(report.contentId)
+                                                .delete()
+                                                .addOnSuccessListener(aVoid -> {
+                                                    Toast.makeText(context, "Reply deleted", Toast.LENGTH_SHORT).show();
+
+                                                    // Decrementar el contador de respuestas
+                                                    if (reviewId != null) {
+                                                        decrementReplyCount(reviewId);
+                                                    }
+
+                                                    // Marcar el reporte como resuelto
+                                                    markReportAsResolved(report, position);
+                                                })
+                                                .addOnFailureListener(e -> {
+                                                    Toast.makeText(context, "Error deleting reply: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                });
+                                    });
+                        } else {
+                            // Eliminar review directamente
+                            FirebaseFirestore.getInstance()
+                                    .collection(collectionToDelete)
+                                    .document(report.contentId)
+                                    .delete()
+                                    .addOnSuccessListener(aVoid -> {
+                                        Toast.makeText(context, contentTypeLabel + " deleted", Toast.LENGTH_SHORT).show();
+                                        markReportAsResolved(report, position);
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(context, "Error deleting " + contentTypeLabel.toLowerCase() + ": " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    });
+                        }
                     })
                     .setNegativeButton("Cancel", null)
                     .show();
@@ -108,6 +145,27 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ViewHolder
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(context, "Error updating report: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void decrementReplyCount(String reviewId) {
+        // Decrementar el contador de respuestas en la review
+        FirebaseFirestore.getInstance()
+                .collection("reviews")
+                .document(reviewId)
+                .get()
+                .addOnSuccessListener(reviewDoc -> {
+                    if (reviewDoc.exists()) {
+                        Long currentCount = reviewDoc.getLong("replyCount");
+                        int newCount = (currentCount != null && currentCount > 0) ? currentCount.intValue() - 1 : 0;
+                        FirebaseFirestore.getInstance()
+                                .collection("reviews")
+                                .document(reviewId)
+                                .update("replyCount", newCount);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Error al actualizar el contador, no es crítico
                 });
     }
 

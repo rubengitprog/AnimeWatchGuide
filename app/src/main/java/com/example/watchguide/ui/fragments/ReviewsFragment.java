@@ -76,6 +76,7 @@ public class ReviewsFragment extends Fragment {
                     for (var doc : snapshots.getDocuments()) {
                         Review review = doc.toObject(Review.class);
                         if (review != null) {
+                            review.reviewId = doc.getId();
                             reviewList.add(review);
                         }
                     }

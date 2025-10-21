@@ -1,9 +1,11 @@
 package com.example.watchguide.data.api;
 
+import com.example.watchguide.models.AnimeDetailResponse;
 import com.example.watchguide.models.AnimeResponse;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface AnimeApi {
@@ -16,5 +18,7 @@ public interface AnimeApi {
     @GET("anime")
     Call<AnimeResponse> searchAnimeWithGenre(@Query("q") String query, @Query("genres") int genreId);
 
+    @GET("anime/{id}")
+    Call<AnimeDetailResponse> getAnimeById(@Path("id") int animeId);
 
 }

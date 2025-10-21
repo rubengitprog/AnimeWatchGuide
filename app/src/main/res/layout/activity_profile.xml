@@ -13,6 +13,23 @@
         android:scaleType="centerCrop"
         android:src="?attr/secondaryImage" />
 
+    <!-- Botón Unfollow arriba a la derecha -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnUnfollow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_margin="16dp"
+        android:text="Unfollow"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        android:elevation="4dp"
+        app:icon="@android:drawable/ic_menu_close_clear_cancel"
+        app:iconGravity="start"
+        app:iconSize="18dp"
+        style="@style/Widget.Material3.Button.TonalButton" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -42,18 +59,6 @@
             android:background="?attr/colorCard"
             android:layout_gravity="center"
             android:layout_marginTop="8dp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnUnfollow"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="8dp"
-            android:text="Unfollow"
-            android:visibility="gone"
-            app:icon="@android:drawable/ic_menu_close_clear_cancel"
-            app:iconGravity="start"
-            style="@style/Widget.Material3.Button.OutlinedButton" />
 
         <LinearLayout
             android:layout_width="match_parent"

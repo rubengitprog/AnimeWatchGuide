@@ -1,11 +1,14 @@
 package com.example.watchguide.ui.fragments.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,9 +17,11 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.watchguide.R;
 import com.example.watchguide.models.Reply;
 import com.example.watchguide.models.Review;
+import com.example.watchguide.ui.fragments.activities.AnimeDetailActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -76,6 +81,29 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
         String dateText = sdf.format(new Date(review.timestamp));
         holder.reviewDate.setText(dateText);
+
+        // Mostrar información del anime
+        if (review.animeTitle != null && !review.animeTitle.isEmpty()) {
+            holder.reviewAnimeTitle.setText(review.animeTitle);
+        } else {
+            holder.reviewAnimeTitle.setText("Unknown Anime");
+        }
+
+        if (review.animeImageUrl != null && !review.animeImageUrl.isEmpty()) {
+            Glide.with(context)
+                    .load(review.animeImageUrl)
+                    .placeholder(R.drawable.ic_launcher_background)
+                    .into(holder.reviewAnimeImage);
+        }
+
+        // Click listener para abrir AnimeDetailActivity
+        holder.animeInfoContainer.setOnClickListener(v -> {
+            Intent intent = new Intent(context, AnimeDetailActivity.class);
+            intent.putExtra("animeId", review.animeId);
+            intent.putExtra("animeTitle", review.animeTitle);
+            intent.putExtra("animeImageUrl", review.animeImageUrl);
+            context.startActivity(intent);
+        });
 
         // Mostrar contadores de likes/dislikes/respuestas
         holder.reviewLikeCount.setText(String.valueOf(review.likeCount));
@@ -386,6 +414,9 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
         ImageButton buttonReportReview, buttonDeleteReview;
         ImageButton buttonLikeReview, buttonDislikeReview, buttonReplyReview;
         RecyclerView recyclerViewReplies;
+        ImageView reviewAnimeImage;
+        TextView reviewAnimeTitle;
+        LinearLayout animeInfoContainer;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -402,6 +433,9 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
             buttonDislikeReview = itemView.findViewById(R.id.buttonDislikeReview);
             buttonReplyReview = itemView.findViewById(R.id.buttonReplyReview);
             recyclerViewReplies = itemView.findViewById(R.id.recyclerViewReplies);
+            reviewAnimeImage = itemView.findViewById(R.id.reviewAnimeImage);
+            reviewAnimeTitle = itemView.findViewById(R.id.reviewAnimeTitle);
+            animeInfoContainer = itemView.findViewById(R.id.animeInfoContainer);
         }
     }
 }

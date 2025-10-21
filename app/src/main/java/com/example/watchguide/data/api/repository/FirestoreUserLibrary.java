@@ -282,6 +282,8 @@ public class FirestoreUserLibrary {
                             Map<String, Object> reviewUpdate = new HashMap<>();
                             reviewUpdate.put("rating", rating);
                             reviewUpdate.put("reviewText", reviewText);
+                            reviewUpdate.put("animeTitle", anime.title);
+                            reviewUpdate.put("animeImageUrl", imageUrl);
                             reviewUpdate.put("timestamp", System.currentTimeMillis());
 
                             db.collection("reviews").document(existingReviewId).update(reviewUpdate);

@@ -1,9 +1,11 @@
 package com.example.watchguide.ui.fragments.activities;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -11,6 +13,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.watchguide.R;
+import com.example.watchguide.data.api.AnimeApi;
+import com.example.watchguide.models.Anime;
+import com.example.watchguide.models.AnimeDetailResponse;
 import com.example.watchguide.models.Review;
 
 import com.example.watchguide.ui.fragments.adapters.ReviewAdapter;
@@ -20,6 +25,14 @@ import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class AnimeDetailActivity extends AppCompatActivity {
 
@@ -77,7 +90,13 @@ public class AnimeDetailActivity extends AppCompatActivity {
 
         // Configurar datos
         animeTitleDetail.setText(animeTitle);
-        animeSynopsisDetail.setText(animeSynopsis != null ? animeSynopsis : "No synopsis available");
+
+        // Si falta información (como la sinopsis), cargar desde la API
+        if (animeSynopsis == null || animeSynopsis.isEmpty()) {
+            loadAnimeFromApi();
+        } else {
+            animeSynopsisDetail.setText(animeSynopsis);
+        }
 
         if (animeImageUrl != null && !animeImageUrl.isEmpty()) {
             Glide.with(this).load(animeImageUrl).into(animeImageDetail);
@@ -243,5 +262,151 @@ public class AnimeDetailActivity extends AppCompatActivity {
                     textNoReviews.setText(getString(R.string.error_loading_reviews, e.getMessage()));
                     android.util.Log.e("AnimeDetail", "Error cargando reviews", e);
                 });
+    }
+
+    private void loadAnimeFromApi() {
+        // Configurar Retrofit
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(logging)
+                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://api.jikan.moe/v4/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(client)
+                .build();
+
+        AnimeApi api = retrofit.create(AnimeApi.class);
+
+        // Hacer la llamada a la API
+        api.getAnimeById(animeId).enqueue(new Callback<AnimeDetailResponse>() {
+            @Override
+            public void onResponse(Call<AnimeDetailResponse> call, Response<AnimeDetailResponse> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().data != null) {
+                    Anime anime = response.body().data;
+
+                    // Actualizar la UI con los datos completos
+                    runOnUiThread(() -> {
+                        // Sinopsis
+                        if (anime.synopsis != null && !anime.synopsis.isEmpty()) {
+                            animeSynopsisDetail.setText(anime.synopsis);
+                        } else {
+                            animeSynopsisDetail.setText("No synopsis available");
+                        }
+
+                        // Imagen (si no la teníamos)
+                        if (animeImageUrl == null || animeImageUrl.isEmpty()) {
+                            String imageUrl = (anime.images != null && anime.images.jpg != null)
+                                ? anime.images.jpg.image_url : null;
+                            if (imageUrl != null) {
+                                Glide.with(AnimeDetailActivity.this).load(imageUrl).into(animeImageDetail);
+                            }
+                        }
+
+                        // Type
+                        if (anime.type != null && !anime.type.isEmpty()) {
+                            animeTypeDetail.setText(anime.type);
+                            animeTypeDetail.setVisibility(View.VISIBLE);
+                        }
+
+                        // Episodes
+                        if (anime.episodes > 0) {
+                            animeEpisodesDetail.setText(anime.episodes + " episodes");
+                            animeEpisodesDetail.setVisibility(View.VISIBLE);
+                        }
+
+                        // Status
+                        if (anime.status != null && !anime.status.isEmpty()) {
+                            animeStatusDetail.setText(anime.status);
+                            animeStatusDetail.setVisibility(View.VISIBLE);
+                        }
+
+                        // MAL Score
+                        if (anime.score > 0) {
+                            animeScoreMALDetail.setText("⭐ MAL Score: " + String.format("%.1f", anime.score));
+                            animeScoreMALDetail.setVisibility(View.VISIBLE);
+                        }
+
+                        // Rank
+                        if (anime.rank > 0) {
+                            animeRankDetail.setText("🏆 Rank #" + anime.rank);
+                            animeRankDetail.setVisibility(View.VISIBLE);
+                        }
+
+                        // Géneros
+                        if (anime.genres != null && !anime.genres.isEmpty()) {
+                            StringBuilder genresText = new StringBuilder();
+                            for (int i = 0; i < anime.genres.size(); i++) {
+                                genresText.append(anime.genres.get(i).name);
+                                if (i < anime.genres.size() - 1) {
+                                    genresText.append(", ");
+                                }
+                            }
+                            animeGenresDetail.setText(genresText.toString());
+                            animeGenresDetail.setVisibility(View.VISIBLE);
+                        }
+
+                        // Year & Season
+                        if (anime.year > 0) {
+                            if (anime.season != null && !anime.season.isEmpty()) {
+                                String seasonCapitalized = anime.season.substring(0, 1).toUpperCase() + anime.season.substring(1);
+                                animeYearSeasonDetail.setText(seasonCapitalized + " " + anime.year);
+                            } else {
+                                animeYearSeasonDetail.setText(String.valueOf(anime.year));
+                            }
+                            animeYearSeasonDetail.setVisibility(View.VISIBLE);
+                        }
+
+                        // Source
+                        if (anime.source != null && !anime.source.isEmpty()) {
+                            animeSourceDetail.setText("Source: " + anime.source);
+                            animeSourceDetail.setVisibility(View.VISIBLE);
+                        }
+
+                        // Studios
+                        if (anime.studios != null && !anime.studios.isEmpty()) {
+                            StringBuilder studiosText = new StringBuilder();
+                            for (int i = 0; i < anime.studios.size(); i++) {
+                                studiosText.append(anime.studios.get(i).name);
+                                if (i < anime.studios.size() - 1) {
+                                    studiosText.append(", ");
+                                }
+                            }
+                            animeStudioDetail.setText("Studio: " + studiosText.toString());
+                            animeStudioDetail.setVisibility(View.VISIBLE);
+                        }
+
+                        // Duration
+                        if (anime.duration != null && !anime.duration.isEmpty()) {
+                            animeDurationDetail.setText(anime.duration);
+                            animeDurationDetail.setVisibility(View.VISIBLE);
+                        }
+
+                        // Rating
+                        if (anime.rating != null && !anime.rating.isEmpty()) {
+                            animeRatingDetail.setText("Rating: " + anime.rating);
+                            animeRatingDetail.setVisibility(View.VISIBLE);
+                        }
+                    });
+                } else {
+                    runOnUiThread(() -> {
+                        animeSynopsisDetail.setText("Error loading anime details");
+                        Toast.makeText(AnimeDetailActivity.this, "Error loading anime information", Toast.LENGTH_SHORT).show();
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(Call<AnimeDetailResponse> call, Throwable t) {
+                Log.e("AnimeDetail", "Error loading anime from API", t);
+                runOnUiThread(() -> {
+                    animeSynopsisDetail.setText("No synopsis available");
+                    Toast.makeText(AnimeDetailActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+            }
+        });
     }
 }

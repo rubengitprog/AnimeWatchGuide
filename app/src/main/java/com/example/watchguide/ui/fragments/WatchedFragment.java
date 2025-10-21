@@ -1,5 +1,6 @@
 package com.example.watchguide.ui.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.watchguide.ui.fragments.adapters.AnimeImageAdapter;
+import com.example.watchguide.ui.fragments.activities.AnimeDetailActivity;
 import com.example.watchguide.R;
 import com.example.watchguide.models.AnimeItem;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -72,11 +74,12 @@ public class WatchedFragment extends Fragment {
                             .setNegativeButton("Cancelar", null)
                             .show();
                 } else {
-                    // Diálogo mostrando solo el título del anime
-                    new androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                            .setTitle(item.getTitle())
-                            .setPositiveButton("Confirm", (dialog, which) -> dialog.dismiss())
-                            .show();
+                    // Abrir AnimeDetailActivity con información del anime
+                    Intent intent = new Intent(requireContext(), AnimeDetailActivity.class);
+                    intent.putExtra("animeId", item.getAnimeId());
+                    intent.putExtra("animeTitle", item.getTitle());
+                    intent.putExtra("animeImageUrl", item.imageUrl);
+                    startActivity(intent);
                 }
             }
         });
@@ -100,8 +103,15 @@ public class WatchedFragment extends Fragment {
                     for (DocumentSnapshot doc : snap.getDocuments()) {
                         String imageUrl = doc.getString("image_url");
                         String title = doc.getString("title");
+                        // El ID del documento es el animeId (mal_id)
+                        int animeId = -1;
+                        try {
+                            animeId = Integer.parseInt(doc.getId());
+                        } catch (NumberFormatException e) {
+                            // Si falla, intentar ignorar
+                        }
                         if (imageUrl != null && title != null) {
-                            animeItems.add(new AnimeItem(imageUrl, title));
+                            animeItems.add(new AnimeItem(imageUrl, title, animeId));
                         }
                     }
                     adapter.notifyDataSetChanged();
