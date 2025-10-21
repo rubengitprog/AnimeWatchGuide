@@ -36,12 +36,13 @@
         android:textColor="?attr/colorTextBlackAndWhite"
         android:textStyle="bold"/>
 
-    <!-- View Profile Icon -->
-    <ImageView
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:src="@android:drawable/ic_menu_view"
-
-        android:contentDescription="@string/profile"/>
+    <!-- Remove Button -->
+    <TextView
+        android:id="@+id/removeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Remove"
+        android:textColor="@color/common_google_signin_btn_text_dark_focused"
+        android:padding="8dp"/>
 
 </LinearLayout>

@@ -15,11 +15,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.watchguide.ui.fragments.adapters.FollowersAdapter;
 import com.example.watchguide.ui.fragments.adapters.FollowingAdapter;
 import com.example.watchguide.R;
 import com.example.watchguide.ui.fragments.FavoritesFragment;
+import com.example.watchguide.ui.fragments.ReviewsFragment;
 import com.example.watchguide.ui.fragments.WatchedFragment;
 import com.example.watchguide.models.FollowingItem;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -37,6 +40,7 @@ public class ProfileActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     private ImageView imageBanner;
     private SwitchMaterial deleteSwitch;
+    private MaterialButton btnUnfollow;
 
     private String uid;
     private boolean isMyProfile;
@@ -79,6 +83,7 @@ public class ProfileActivity extends AppCompatActivity {
         followingCount = findViewById(R.id.followingCount);
         tabLayout = findViewById(R.id.tabLayout);
         deleteSwitch = findViewById(R.id.deleteSwitch);
+        btnUnfollow = findViewById(R.id.btnUnfollow);
 
         //  Configuración del switch
         if (isMyProfile) {
@@ -109,6 +114,13 @@ public class ProfileActivity extends AppCompatActivity {
             deleteSwitch.setVisibility(View.GONE);
         }
 
+        // Verificar si sigo a este usuario y mostrar botón Unfollow
+        if (!isMyProfile) {
+            checkIfFollowingAndShowButton(currentUid);
+        } else {
+            btnUnfollow.setVisibility(View.GONE);
+        }
+
         // Cargar info del usuario y contadores
         loadUserInfo();
         loadCounters();
@@ -116,6 +128,7 @@ public class ProfileActivity extends AppCompatActivity {
         // Tabs
         tabLayout.addTab(tabLayout.newTab().setText("Favorites"));
         tabLayout.addTab(tabLayout.newTab().setText("Seen"));
+        tabLayout.addTab(tabLayout.newTab().setText("Reviews"));
 
         replaceFragment(FavoritesFragment.newInstance(uid, deleteEnabled));
 
@@ -127,6 +140,8 @@ public class ProfileActivity extends AppCompatActivity {
                     selected = FavoritesFragment.newInstance(uid, deleteEnabled);
                 } else if (tab.getPosition() == 1) {
                     selected = WatchedFragment.newInstance(uid, deleteEnabled);
+                } else if (tab.getPosition() == 2) {
+                    selected = ReviewsFragment.newInstance(uid);
                 }
                 if (selected != null) replaceFragment(selected);
             }
@@ -140,8 +155,14 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
-        // Mostrar lista de following al pulsar
-        followingCount.setOnClickListener(v -> loadFollowing());
+        // Solo permitir ver las listas si es mi perfil
+        if (isMyProfile) {
+            // Mostrar lista de followers al pulsar
+            followersCount.setOnClickListener(v -> loadFollowers());
+
+            // Mostrar lista de following al pulsar
+            followingCount.setOnClickListener(v -> loadFollowing());
+        }
     }
 
     private void loadUserInfo() {
@@ -228,6 +249,122 @@ public class ProfileActivity extends AppCompatActivity {
                 .setTitle("Following")
                 .setView(dialogView)
                 .setPositiveButton("Close", null)
+                .show();
+    }
+
+    private void loadFollowers() {
+        db.collection("users").document(uid)
+                .collection("followers")
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    List<String> followerIds = new ArrayList<>();
+                    for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                        followerIds.add(doc.getId());
+                    }
+
+                    if (followerIds.isEmpty()) {
+                        Toast.makeText(this, "No tienes seguidores", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    db.collection("users")
+                            .whereIn(FieldPath.documentId(), followerIds)
+                            .get()
+                            .addOnSuccessListener(usersSnap -> {
+                                List<FollowingItem> list = new ArrayList<>();
+                                for (DocumentSnapshot userDoc : usersSnap.getDocuments()) {
+                                    String fUid = userDoc.getId();
+                                    String username = userDoc.getString("username");
+                                    String photoURL = userDoc.getString("photoURL");
+                                    list.add(new FollowingItem(fUid, username, photoURL));
+                                }
+                                showFollowersDialog(list);
+                            });
+                });
+    }
+
+    //Mostrar el dialog de seguidores
+    private void showFollowersDialog(List<FollowingItem> list) {
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_followers, null);
+        RecyclerView recyclerView = dialogView.findViewById(R.id.recyclerViewFollowers);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        final FollowersAdapter[] adapterHolder = new FollowersAdapter[1];
+        adapterHolder[0] = new FollowersAdapter(list, item -> {
+            db.collection("users").document(uid)
+                    .collection("followers")
+                    .document(item.uid)
+                    .delete()
+                    .addOnSuccessListener(aVoid -> {
+                        // También eliminar de la colección following del otro usuario
+                        db.collection("users").document(item.uid)
+                                .collection("following")
+                                .document(uid)
+                                .delete();
+
+                        list.remove(item);
+                        adapterHolder[0].notifyDataSetChanged();
+                        Toast.makeText(this, "Removed " + item.username, Toast.LENGTH_SHORT).show();
+                    });
+        });
+
+        recyclerView.setAdapter(adapterHolder[0]);
+
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Followers")
+                .setView(dialogView)
+                .setPositiveButton("Close", null)
+                .show();
+    }
+
+    private void checkIfFollowingAndShowButton(String currentUid) {
+        db.collection("users")
+                .document(currentUid)
+                .collection("following")
+                .document(uid)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        // Sí sigo a este usuario, mostrar botón Unfollow
+                        btnUnfollow.setVisibility(View.VISIBLE);
+                        btnUnfollow.setOnClickListener(v -> unfollowUser(currentUid));
+                    } else {
+                        // No sigo a este usuario, ocultar botón
+                        btnUnfollow.setVisibility(View.GONE);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    btnUnfollow.setVisibility(View.GONE);
+                });
+    }
+
+    private void unfollowUser(String currentUid) {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Unfollow")
+                .setMessage("Are you sure you want to unfollow this user?")
+                .setPositiveButton("Unfollow", (dialog, which) -> {
+                    // Eliminar de mi lista de following
+                    db.collection("users").document(currentUid)
+                            .collection("following")
+                            .document(uid)
+                            .delete()
+                            .addOnSuccessListener(aVoid -> {
+                                // Eliminar de la lista de followers del otro usuario
+                                db.collection("users").document(uid)
+                                        .collection("followers")
+                                        .document(currentUid)
+                                        .delete();
+
+                                // Ocultar botón y actualizar contadores
+                                btnUnfollow.setVisibility(View.GONE);
+                                loadCounters();
+                                Toast.makeText(this, "Unfollowed successfully", Toast.LENGTH_SHORT).show();
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(this, "Error unfollowing user", Toast.LENGTH_SHORT).show();
+                            });
+                })
+                .setNegativeButton("Cancel", null)
                 .show();
     }
 

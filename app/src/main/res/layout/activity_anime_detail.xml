@@ -30,6 +30,146 @@
             android:textColor="?attr/colorTextBlackAndWhite"
             android:layout_marginBottom="8dp" />
 
+        <!-- Información básica: Tipo, Episodios, Estado -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/animeTypeDetail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TV"
+                android:textSize="14sp"
+                android:textColor="?attr/colorTextBlackAndWhite"
+                android:background="?attr/colorPrimary"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:id="@+id/animeEpisodesDetail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="24 episodes"
+                android:textSize="14sp"
+                android:textColor="?attr/colorTextBlackAndWhite"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:id="@+id/animeStatusDetail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Finished Airing"
+                android:textSize="14sp"
+                android:textColor="?attr/colorTextBlackAndWhite" />
+
+        </LinearLayout>
+
+        <!-- Score de MAL y Ranking -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/animeScoreMALDetail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⭐ MAL Score: 8.5"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="?attr/colorTextBlackAndWhite"
+                android:layout_marginEnd="16dp" />
+
+            <TextView
+                android:id="@+id/animeRankDetail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🏆 Rank #50"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="?attr/colorTextBlackAndWhite" />
+
+        </LinearLayout>
+
+        <!-- Géneros -->
+        <TextView
+            android:id="@+id/animeGenresDetail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Action, Adventure, Fantasy"
+            android:textSize="14sp"
+            android:textColor="?attr/colorTextBlackAndWhite"
+            android:textStyle="italic"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Año, Temporada, Source -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/animeYearSeasonDetail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Winter 2024"
+                android:textSize="14sp"
+                android:textColor="?attr/colorTextBlackAndWhite"
+                android:layout_marginEnd="12dp" />
+
+            <TextView
+                android:id="@+id/animeSourceDetail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Source: Manga"
+                android:textSize="14sp"
+                android:textColor="?attr/colorTextBlackAndWhite" />
+
+        </LinearLayout>
+
+        <!-- Estudio, Duración, Rating -->
+        <TextView
+            android:id="@+id/animeStudioDetail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Studio: MAPPA"
+            android:textSize="14sp"
+            android:textColor="?attr/colorTextBlackAndWhite"
+            android:layout_marginBottom="4dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:id="@+id/animeDurationDetail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="24 min per ep"
+                android:textSize="14sp"
+                android:textColor="?attr/colorTextBlackAndWhite"
+                android:layout_marginEnd="12dp" />
+
+            <TextView
+                android:id="@+id/animeRatingDetail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rating: PG-13"
+                android:textSize="14sp"
+                android:textColor="?attr/colorTextBlackAndWhite" />
+
+        </LinearLayout>
+
         <!-- Sinopsis -->
         <TextView
             android:id="@+id/animeSynopsisDetail"
@@ -40,7 +180,7 @@
             android:textColor="?attr/colorTextBlackAndWhite"
             android:layout_marginBottom="16dp" />
 
-        <!-- Nota media -->
+        <!-- Nota media de usuarios de la app -->
         <TextView
             android:id="@+id/animeAverageRatingDetail"
             android:layout_width="wrap_content"

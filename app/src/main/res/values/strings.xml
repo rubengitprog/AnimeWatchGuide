@@ -92,9 +92,9 @@
     <string name="rating_label">Calificación: %s</string>
     <string name="rating_not_available">N/A</string>
     <string name="rating_format">%.1f (%d)</string>
-    <string name="average_rating">Calificación promedio: %.1f⭐ (%d calificaciones)</string>
-    <string name="no_ratings_yet">Calificación promedio: Sin calificaciones todavía</string>
-    <string name="average_rating_dash">Calificación promedio: -</string>
+    <string name="average_rating">Average rating: %.1f⭐ (%d ratings)</string>
+    <string name="no_ratings_yet">Average rating: No ratings yet</string>
+    <string name="average_rating_dash">Average rating: -</string>
     <string name="error_change_favorite">Error al cambiar de favorito</string>
     <string name="error_change_watched">Error al cambiar de estado</string>
     <string name="rate_anime">Califica el anime de 1.0 a 10.0</string>
@@ -177,4 +177,5 @@
     <string name="remove_mode">Modo Eliminar</string>
     <string name="remove_mode_on">Modo Eliminar: ACTIVADO</string>
     <string name="error_loading_reports">Error cargando el reporte</string>
+    <string name="default_web_client_id">211216328590-e0p1nl0fnf342982grkhrub21sl3r59o.apps.googleusercontent.com</string>
 </resources>

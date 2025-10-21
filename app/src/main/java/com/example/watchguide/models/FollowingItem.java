@@ -11,7 +11,7 @@ public class FollowingItem {
     public FollowingItem(String uid, String username, String photoURL) {
         this.uid = uid;
         this.username = username;
-        this.photoURL = this.photoURL;
+        this.photoURL = photoURL;
     }
 
 }

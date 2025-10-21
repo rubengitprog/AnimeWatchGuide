@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    android:layout_marginStart="32dp"
+    app:cardElevation="2dp"
+    app:cardCornerRadius="8dp"
+    app:cardBackgroundColor="#F5F5F5">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <!-- Header con usuario y botones -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/replyUsername"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Username"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="?attr/colorTextBlackAndWhite" />
+
+            <ImageButton
+                android:id="@+id/buttonDeleteReply"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Delete reply"
+                android:visibility="gone" />
+
+            <ImageButton
+                android:id="@+id/buttonReportReply"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/ic_dialog_alert"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Report reply"
+                android:layout_marginStart="4dp" />
+
+        </LinearLayout>
+
+        <!-- Texto de la respuesta -->
+        <TextView
+            android:id="@+id/replyText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Reply text here..."
+            android:textSize="13sp"
+            android:textColor="?attr/colorTextBlackAndWhite"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Footer con likes, dislikes y fecha -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Botón Like -->
+            <ImageButton
+                android:id="@+id/buttonLikeReply"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/ic_input_add"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Like"
+                android:tint="@android:color/holo_green_dark" />
+
+            <TextView
+                android:id="@+id/replyLikeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="12sp"
+                android:textColor="?attr/colorTextBlackAndWhite"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="12dp" />
+
+            <!-- Botón Dislike -->
+            <ImageButton
+                android:id="@+id/buttonDislikeReply"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/ic_delete"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Dislike"
+                android:tint="@android:color/holo_red_dark" />
+
+            <TextView
+                android:id="@+id/replyDislikeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="12sp"
+                android:textColor="?attr/colorTextBlackAndWhite"
+                android:layout_marginStart="4dp" />
+
+            <!-- Fecha -->
+            <TextView
+                android:id="@+id/replyDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="01/01/2025"
+                android:textSize="11sp"
+                android:textColor="@android:color/darker_gray"
+                android:gravity="end" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

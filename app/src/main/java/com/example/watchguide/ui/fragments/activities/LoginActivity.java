@@ -97,6 +97,7 @@ public class LoginActivity extends AppCompatActivity {
                                             userData.put("username", defaultName);
                                             userData.put("email", email);
                                             userData.put("photoURL", defaultPhotoUrl);
+                                            userData.put("role", "user"); // Asignar rol de usuario por defecto
 
                                             userRef.set(userData)
                                                     .addOnSuccessListener(aVoid ->
@@ -106,7 +107,13 @@ public class LoginActivity extends AppCompatActivity {
                                                             Toast.makeText(this, "Error saving new user: " + e.getMessage(), Toast.LENGTH_SHORT).show()
                                                     );
                                         } else {
-                                            // Si el usuario ya existe recuperamos lo que haya guardado en firestore
+                                            // Si el usuario ya existe, verificar que tenga role asignado
+                                            if (!document.contains("role")) {
+                                                // Si no tiene role, asignar "user" por defecto
+                                                userRef.update("role", "user");
+                                            }
+
+                                            // Recuperamos lo que haya guardado en firestore
                                             String username = document.getString("username");
                                             Toast.makeText(this, "Welcome back " + username, Toast.LENGTH_SHORT).show();
                                         }

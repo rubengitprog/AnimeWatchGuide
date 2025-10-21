@@ -20,9 +20,15 @@ import java.util.List;
 public class FollowersAdapter extends RecyclerView.Adapter<FollowersAdapter.ViewHolder> {
 
     private final List<FollowingItem> followersList;
+    private final OnRemoveListener listener;
 
-    public FollowersAdapter(List<FollowingItem> list) {
+    public interface OnRemoveListener {
+        void onRemove(FollowingItem item);
+    }
+
+    public FollowersAdapter(List<FollowingItem> list, OnRemoveListener listener) {
         this.followersList = list;
+        this.listener = listener;
     }
 
     @NonNull
@@ -47,6 +53,9 @@ public class FollowersAdapter extends RecyclerView.Adapter<FollowersAdapter.View
             holder.profileImage.setImageResource(R.drawable.circle_background);
         }
 
+        // Botón para eliminar follower
+        holder.removeButton.setOnClickListener(v -> listener.onRemove(item));
+
         // Al hacer click en cualquier parte del item, abrir el perfil
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(holder.itemView.getContext(), ProfileActivity.class);
@@ -63,11 +72,13 @@ public class FollowersAdapter extends RecyclerView.Adapter<FollowersAdapter.View
     static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView profileImage;
         TextView username;
+        TextView removeButton;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             profileImage = itemView.findViewById(R.id.followerImage);
             username = itemView.findViewById(R.id.followerName);
+            removeButton = itemView.findViewById(R.id.removeButton);
         }
     }
 }

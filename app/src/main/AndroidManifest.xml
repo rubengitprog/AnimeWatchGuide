@@ -10,6 +10,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.WatchGuide"
+        android:enableOnBackInvokedCallback="true"
         tools:targetApi="31">
         <activity
             android:name=".ui.fragments.activities.LoginActivity"
@@ -24,6 +25,18 @@
         <activity
             android:name=".ui.fragments.activities.ProfileActivity"
             android:exported="true">
+
+        </activity>
+        <activity
+            android:name=".ui.fragments.activities.AnimeDetailActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.fragments.activities.MainActivity">
+
+        </activity>
+        <activity
+            android:name=".ui.fragments.activities.ReportsActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.fragments.activities.MainActivity">
 
         </activity>
         <activity

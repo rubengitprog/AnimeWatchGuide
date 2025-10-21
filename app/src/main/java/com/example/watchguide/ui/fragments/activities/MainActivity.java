@@ -271,6 +271,9 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        // Verificar rol del usuario y mostrar botón de admin si corresponde
+        checkUserRole();
+
         // Menu lateral
         drawerLayout = findViewById(R.id.drawerLayout);
         navigationView = findViewById(R.id.navigationView);
@@ -475,7 +478,7 @@ public class MainActivity extends AppCompatActivity {
                                     .cancelable(false),
 
                             TapTarget.forView(findViewById(R.id.btnFilter),
-                                            "Filtrar",
+                                            "Filter",
                                             "Use this option to filter results by genre.")
                                     .id(1)
                                     .outerCircleColor(R.color.naruto_naranja)
@@ -525,7 +528,7 @@ public class MainActivity extends AppCompatActivity {
                     .listener(new TapTargetSequence.Listener() {
                         @Override
                         public void onSequenceFinish() {
-                            Toast.makeText(MainActivity.this, "¡Tutorial completed, enjoy!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, "Tutorial completed, enjoy!", Toast.LENGTH_SHORT).show();
                         }
 
                         @Override
@@ -563,11 +566,11 @@ public class MainActivity extends AppCompatActivity {
         String uid = user.getUid();
 
         EditText input = new EditText(this);
-        input.setHint("New username");
+        input.setHint("New username (max 10 characters)");
 
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Change your username")
-                .setMessage("Username:")
+                .setMessage("Username (max 10 characters):")
                 .setView(input)
                 .setCancelable(false)
                 .setPositiveButton("Save", null)
@@ -581,6 +584,12 @@ public class MainActivity extends AppCompatActivity {
 
                 if (newName.isEmpty()) {
                     Toast.makeText(this, "New name field must be filled", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Validar: máximo 10 caracteres
+                if (newName.length() > 10) {
+                    Toast.makeText(this, "Username must be 10 characters or less", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -803,7 +812,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        TextView btnClose = dialogView.findViewById(R.id.btnClose);
+        com.google.android.material.button.MaterialButton btnClose = dialogView.findViewById(R.id.btnClose);
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(dialogView)
                 .create();
@@ -821,11 +830,11 @@ public class MainActivity extends AppCompatActivity {
 
         // Crear EditText dentro de AlertDialog
         EditText input = new EditText(this);
-        input.setHint("New username");
+        input.setHint("New username (max 10 characters)");
 
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Set your username")
-                .setMessage("Please enter a unique username:")
+                .setMessage("Please enter a unique username (max 10 characters):")
                 .setView(input)
                 .setCancelable(false) //  El usuario no puede cerrar el diálogo hasta que rellene
                 .setPositiveButton("Save", null)
@@ -834,18 +843,42 @@ public class MainActivity extends AppCompatActivity {
         dialog.setOnShowListener(d -> {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
                 String newName = input.getText().toString().trim();
+
                 if (newName.isEmpty()) {
                     Toast.makeText(this, "Username cannot be empty", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
+                // Validar: máximo 10 caracteres
+                if (newName.length() > 10) {
+                    Toast.makeText(this, "Username must be 10 characters or less", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Validar: solo letras y números
+                if (!newName.matches("[a-zA-Z0-9]+")) {
+                    Toast.makeText(this, "Username can only contain letters and numbers", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Normalizar para la comparación: minúsculas
+                String normalizedNewName = newName.toLowerCase();
+
                 // Comprobar que no exista ya en Firestore
                 FirebaseFirestore.getInstance()
                         .collection("users")
-                        .whereEqualTo("username", newName)
                         .get()
                         .addOnSuccessListener(snap -> {
-                            if (!snap.isEmpty()) {
+                            boolean exists = false;
+                            for (var doc : snap.getDocuments()) {
+                                String existingName = doc.getString("username");
+                                if (existingName != null && existingName.toLowerCase().equals(normalizedNewName)) {
+                                    exists = true;
+                                    break;
+                                }
+                            }
+
+                            if (exists) {
                                 Toast.makeText(this, "Username already exists, choose another", Toast.LENGTH_SHORT).show();
                             } else {
                                 // Guardar en Firestore
@@ -874,6 +907,70 @@ public class MainActivity extends AppCompatActivity {
         });
 
         dialog.show();
+    }
+
+    // Inflar el menú del Toolbar
+    @Override
+    public boolean onCreateOptionsMenu(android.view.Menu menu) {
+        getMenuInflater().inflate(R.menu.main_toolbar_menu, menu);
+        return true;
+    }
+
+    // Manejar clicks en el menú del Toolbar
+    @Override
+    public boolean onOptionsItemSelected(android.view.MenuItem item) {
+        if (item.getItemId() == R.id.action_admin) {
+            // Abrir ReportsActivity
+            Intent intent = new Intent(this, ReportsActivity.class);
+            startActivity(intent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    // Verificar el rol del usuario en Firestore
+    private void checkUserRole() {
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(uid)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists() && doc.contains("role")) {
+                        String role = doc.getString("role");
+                        if ("admin".equals(role)) {
+                            // Si es admin, mostrar el botón
+                            invalidateOptionsMenu(); // Forzar recreación del menú
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("MainActivity", "Error checking user role", e);
+                });
+    }
+
+    // Sobrescribir para mostrar/ocultar el botón de admin según el rol
+    @Override
+    public boolean onPrepareOptionsMenu(android.view.Menu menu) {
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        android.view.MenuItem adminItem = menu.findItem(R.id.action_admin);
+
+        if (adminItem != null) {
+            FirebaseFirestore.getInstance()
+                    .collection("users")
+                    .document(uid)
+                    .get()
+                    .addOnSuccessListener(doc -> {
+                        if (doc.exists() && doc.contains("role")) {
+                            String role = doc.getString("role");
+                            adminItem.setVisible("admin".equals(role));
+                        } else {
+                            adminItem.setVisible(false);
+                        }
+                    });
+        }
+
+        return super.onPrepareOptionsMenu(menu);
     }
 
 

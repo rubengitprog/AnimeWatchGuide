@@ -71,6 +71,12 @@ public class WatchedFragment extends Fragment {
                             })
                             .setNegativeButton("Cancelar", null)
                             .show();
+                } else {
+                    // Diálogo mostrando solo el título del anime
+                    new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                            .setTitle(item.getTitle())
+                            .setPositiveButton("Confirm", (dialog, which) -> dialog.dismiss())
+                            .show();
                 }
             }
         });

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorBackgroundBlackAndWhite">
+
+    <!-- RecyclerView para mostrar las reseñas -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewReviews"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="8dp"
+        android:clipToPadding="false" />
+
+    <!-- Mensaje cuando no hay reseñas -->
+    <TextView
+        android:id="@+id/emptyMessageReviews"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="No reviews yet"
+        android:textSize="16sp"
+        android:textColor="?attr/colorTextBlackAndWhite"
+        android:alpha="0.6"
+        android:visibility="gone" />
+
+</FrameLayout>

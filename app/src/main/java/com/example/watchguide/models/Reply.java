@@ -3,51 +3,33 @@ package com.example.watchguide.models;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Review {
-    public String reviewId;
+public class Reply {
+    public String replyId;
+    public String reviewId; // ID de la reseña a la que responde
     public String userId;
-    public int animeId;
-    public String animeTitle;
-    public String animeImageUrl;
-    public float rating;
-    public String reviewText;
-    public long timestamp;
-    public String status; // "approved", "pending", "deleted"
     public String username; // Nombre del usuario (temporal, se obtiene de Firestore)
+    public String replyText;
+    public long timestamp;
     public Map<String, Boolean> likes; // Map de userId -> true (like) o false (dislike)
     public int likeCount;
     public int dislikeCount;
-    public int replyCount; // Número de respuestas
-    public boolean edited; // Si la reseña ha sido editada
-    public long editedAt; // Timestamp de la última edición
 
-    public Review() {
+    public Reply() {
         // Constructor vacío requerido por Firestore
         this.likes = new HashMap<>();
         this.likeCount = 0;
         this.dislikeCount = 0;
-        this.replyCount = 0;
-        this.edited = false;
-        this.editedAt = 0;
     }
 
-    public Review(String reviewId, String userId, int animeId, String animeTitle, String animeImageUrl,
-                  float rating, String reviewText, long timestamp, String status) {
+    public Reply(String replyId, String reviewId, String userId, String replyText, long timestamp) {
+        this.replyId = replyId;
         this.reviewId = reviewId;
         this.userId = userId;
-        this.animeId = animeId;
-        this.animeTitle = animeTitle;
-        this.animeImageUrl = animeImageUrl;
-        this.rating = rating;
-        this.reviewText = reviewText;
+        this.replyText = replyText;
         this.timestamp = timestamp;
-        this.status = status;
         this.likes = new HashMap<>();
         this.likeCount = 0;
         this.dislikeCount = 0;
-        this.replyCount = 0;
-        this.edited = false;
-        this.editedAt = 0;
     }
 
     public void addLike(String userId) {

@@ -125,8 +125,15 @@
         android:layout_gravity="start"
         android:background="?attr/colorOnPrimary"
         app:itemTextColor="?attr/colorTextBlackAndWhite"
+        app:itemIconTint="?attr/colorTextBlackAndWhite"
         app:headerLayout="@layout/nav_header"
         app:menu="@menu/drawer_menu"
-        app:itemBackground="@drawable/nav_item_background"/>
+        app:itemBackground="@drawable/nav_item_background"
+        app:itemHorizontalPadding="16dp"
+        app:itemVerticalPadding="8dp"
+        app:itemIconPadding="16dp"
+        app:itemShapeFillColor="@android:color/transparent"
+        app:itemShapeInsetStart="12dp"
+        app:itemShapeInsetEnd="12dp"/>
 
 </androidx.drawerlayout.widget.DrawerLayout>

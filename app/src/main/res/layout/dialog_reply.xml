@@ -9,32 +9,34 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Please provide additional details:"
+        android:text="Write your reply:"
         android:textSize="14sp"
         android:textStyle="bold"
         android:textColor="?attr/colorTextBlackAndWhite"
         android:paddingBottom="8dp" />
 
     <EditText
-        android:id="@+id/inputReportDescription"
+        android:id="@+id/inputReplyText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="100dp"
+        android:minHeight="120dp"
         android:gravity="top|start"
         android:inputType="textMultiLine|textCapSentences"
-        android:maxLength="300"
-        android:hint="Describe why you're reporting this review..."
+        android:maxLength="500"
+        android:hint="Write your reply..."
         android:textColor="?attr/colorTextBlackAndWhite"
         android:textColorHint="?attr/colorTextBlackAndWhite"
         android:alpha="0.8"
         android:padding="12dp"
-        android:background="@android:drawable/edit_text" />
+        android:background="@android:drawable/edit_text"
+        android:minLines="4"
+        android:maxLines="10" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="4dp"
-        android:text="Max 300 characters"
+        android:text="Max 500 characters"
         android:textSize="11sp"
         android:textColor="?attr/colorTextBlackAndWhite"
         android:alpha="0.6" />

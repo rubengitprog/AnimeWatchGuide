@@ -1,6 +1,7 @@
 package com.example.watchguide.ui.fragments.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.watchguide.data.api.repository.FirestoreFollowManager;
 import com.example.watchguide.R;
 import com.example.watchguide.models.UserItem;
+import com.example.watchguide.ui.fragments.activities.ProfileActivity;
 
 import java.util.List;
 
@@ -40,6 +42,13 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         UserItem user = userList.get(position);
         holder.textUsername.setText(user.username);
+
+        // Click en el nombre de usuario para abrir su perfil
+        holder.textUsername.setOnClickListener(v -> {
+            Intent intent = new Intent(context, ProfileActivity.class);
+            intent.putExtra("uid", user.uid);
+            context.startActivity(intent);
+        });
 
         // Inicialmente mostramos "Seguir"
         holder.btnFollow.setText("Follow");

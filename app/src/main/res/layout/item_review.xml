@@ -40,6 +40,26 @@
                 android:textColor="?attr/colorTextBlackAndWhite" />
 
             <ImageButton
+                android:id="@+id/buttonEditReview"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@android:drawable/ic_menu_edit"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Edit review"
+                android:layout_marginStart="8dp"
+                android:visibility="gone" />
+
+            <ImageButton
+                android:id="@+id/buttonDeleteReview"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Delete review"
+                android:layout_marginStart="8dp"
+                android:visibility="gone" />
+
+            <ImageButton
                 android:id="@+id/buttonReportReview"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
@@ -61,14 +81,93 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp" />
 
-        <!-- Fecha -->
-        <TextView
-            android:id="@+id/reviewDate"
-            android:layout_width="wrap_content"
+        <!-- Footer con likes, dislikes, respuestas y fecha -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="01/01/2025"
-            android:textSize="12sp"
-            android:textColor="@android:color/darker_gray" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Botón Like -->
+            <ImageButton
+                android:id="@+id/buttonLikeReview"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@android:drawable/ic_input_add"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Like"
+                android:tint="@android:color/holo_green_dark" />
+
+            <TextView
+                android:id="@+id/reviewLikeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="13sp"
+                android:textColor="?attr/colorTextBlackAndWhite"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="12dp" />
+
+            <!-- Botón Dislike -->
+            <ImageButton
+                android:id="@+id/buttonDislikeReview"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@android:drawable/ic_delete"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Dislike"
+                android:tint="@android:color/holo_red_dark" />
+
+            <TextView
+                android:id="@+id/reviewDislikeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="13sp"
+                android:textColor="?attr/colorTextBlackAndWhite"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="12dp" />
+
+            <!-- Botón Reply -->
+            <ImageButton
+                android:id="@+id/buttonReplyReview"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@android:drawable/ic_menu_revert"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Reply"
+                android:tint="@android:color/holo_blue_dark" />
+
+            <TextView
+                android:id="@+id/reviewReplyCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="13sp"
+                android:textColor="?attr/colorTextBlackAndWhite"
+                android:layout_marginStart="4dp" />
+
+            <!-- Fecha -->
+            <TextView
+                android:id="@+id/reviewDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="01/01/2025"
+                android:textSize="12sp"
+                android:textColor="@android:color/darker_gray"
+                android:gravity="end" />
+
+        </LinearLayout>
+
+        <!-- RecyclerView para las respuestas -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewReplies"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:nestedScrollingEnabled="false"
+            android:visibility="gone" />
 
     </LinearLayout>
 
