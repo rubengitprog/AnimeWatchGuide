@@ -22,6 +22,7 @@ import com.example.watchguide.R;
 import com.example.watchguide.models.Reply;
 import com.example.watchguide.models.Review;
 import com.example.watchguide.ui.fragments.activities.AnimeDetailActivity;
+import com.example.watchguide.utils.TextValidator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -40,6 +41,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
     private final Context context;
     private final String currentUserId;
     private final boolean showAnimeInfo;
+    private boolean isAdmin = false;
 
     public ReviewAdapter(List<Review> reviewList, Context context) {
         this(reviewList, context, true);
@@ -52,6 +54,27 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
         this.currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null
             ? FirebaseAuth.getInstance().getCurrentUser().getUid()
             : "";
+
+        // Verificar si el usuario actual es admin
+        checkIfAdmin();
+    }
+
+    private void checkIfAdmin() {
+        if (currentUserId.isEmpty()) {
+            return;
+        }
+
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(currentUserId)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists() && doc.contains("role")) {
+                        String role = doc.getString("role");
+                        isAdmin = "admin".equals(role);
+                        notifyDataSetChanged(); // Actualizar la vista cuando se confirme el rol
+                    }
+                });
     }
 
     @NonNull
@@ -137,8 +160,9 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
             holder.buttonDislikeReview.setAlpha(0.5f);
         }
 
-        // Mostrar botón de eliminar solo si es el propietario
-        if (review.userId.equals(currentUserId)) {
+        // Mostrar botón de eliminar si es el propietario O si es admin
+        boolean canDelete = review.userId.equals(currentUserId) || isAdmin;
+        if (canDelete) {
             holder.buttonDeleteReview.setVisibility(View.VISIBLE);
             holder.buttonDeleteReview.setOnClickListener(v -> showDeleteDialog(review, position));
         } else {
@@ -186,12 +210,16 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
                 .setPositiveButton("Submit Report", (dialog, which) -> {
                     int selectedPosition = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
                     String selectedReason = reasons[selectedPosition].toLowerCase().replace(" ", "_");
-                    String description = inputDescription.getText().toString().trim();
+                    String description = inputDescription.getText().toString();
 
-                    if (description.isEmpty()) {
-                        Toast.makeText(context, "Please provide a description", Toast.LENGTH_SHORT).show();
+                    // Validar que la descripción no esté vacía y no contenga solo caracteres invisibles
+                    if (!TextValidator.isValidText(description)) {
+                        Toast.makeText(context, "Please provide a valid description", Toast.LENGTH_SHORT).show();
                         return;
                     }
+
+                    // Limpiar el texto
+                    String cleanedDescription = TextValidator.cleanText(description);
 
                     // Obtener username del usuario que reporta
                     FirebaseFirestore.getInstance()
@@ -209,7 +237,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
                                 report.put("contentType", "review");
                                 report.put("contentId", review.reviewId);
                                 report.put("reason", selectedReason);
-                                report.put("description", description);
+                                report.put("description", cleanedDescription);
                                 report.put("timestamp", System.currentTimeMillis());
                                 report.put("status", "pending");
 
@@ -295,8 +323,9 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
                                         .addOnSuccessListener(doc -> {
                                             if (doc.exists()) {
                                                 Map<String, Object> userRatings = (Map<String, Object>) doc.get("userRatings");
-                                                if (userRatings != null && userRatings.containsKey(currentUserId)) {
-                                                    userRatings.remove(currentUserId);
+                                                // Usar review.userId (dueño de la review) en lugar de currentUserId (puede ser admin)
+                                                if (userRatings != null && userRatings.containsKey(review.userId)) {
+                                                    userRatings.remove(review.userId);
 
                                                     // Recalcular average
                                                     float sum = 0;
@@ -343,12 +372,16 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
                 .setMessage("Write your reply to " + review.username + "'s review:")
                 .setView(dialogView)
                 .setPositiveButton("Submit", (dialog, which) -> {
-                    String replyText = inputReply.getText().toString().trim();
+                    String replyText = inputReply.getText().toString();
 
-                    if (replyText.isEmpty()) {
-                        Toast.makeText(context, "Please write a reply", Toast.LENGTH_SHORT).show();
+                    // Validar que el texto no esté vacío y no contenga solo caracteres invisibles
+                    if (!TextValidator.isValidText(replyText)) {
+                        Toast.makeText(context, "Please write a valid reply", Toast.LENGTH_SHORT).show();
                         return;
                     }
+
+                    // Limpiar el texto
+                    String cleanedReplyText = TextValidator.cleanText(replyText);
 
                     // Crear respuesta en Firestore
                     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -356,7 +389,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
                     Reply reply = new Reply();
                     reply.reviewId = review.reviewId;
                     reply.userId = currentUserId;
-                    reply.replyText = replyText;
+                    reply.replyText = cleanedReplyText;
                     reply.timestamp = System.currentTimeMillis();
 
                     db.collection("replies")

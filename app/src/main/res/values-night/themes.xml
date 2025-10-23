@@ -93,7 +93,7 @@
         <item name="colorOnPrimary">#80CFCFCF</item>
         <item name="hatImage">@drawable/kimetsuhair</item>
         <item name="colorTextSecondary">#B3B3B3</item>
-        <item name="imagenMain">@drawable/kimetsu_main</item>
+        <item name="imagenMain">@drawable/kimetsu_mainn</item>
         <item name="secondaryImage">@drawable/kimetsu_secondary</item>
         <item name="colorBackgroundBlackAndWhite">@color/black</item>
     </style>

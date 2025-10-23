@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="?attr/colorBackgroundBlackAndWhite">
+  >
 
     <TextView
         android:layout_width="match_parent"
@@ -16,6 +16,8 @@
         android:paddingBottom="8dp" />
 
     <EditText
+        android:backgroundTint="?attr/colorBackgroundBlackAndWhite"
+
         android:id="@+id/inputReplyText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

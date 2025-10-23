@@ -71,16 +71,15 @@
                 <!-- Botón de filtro con estilo Material -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnFilter"
-                    style="@style/Widget.Material3.Button.Icon"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
                     android:layout_marginStart="8dp"
+                    android:contentDescription="Filter by genre"
                     app:icon="@drawable/filtro"
-                    app:iconGravity="textEnd"
-                    app:cornerRadius="12dp"
-
-
-                    />
+                    app:iconGravity="textStart"
+                    app:iconSize="24dp"
+                    app:cornerRadius="12dp" />
 
             </LinearLayout>
 

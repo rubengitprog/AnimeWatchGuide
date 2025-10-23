@@ -3,6 +3,7 @@ package com.example.watchguide.data.api;
 import com.example.watchguide.models.AnimeDetailResponse;
 import com.example.watchguide.models.AnimeResponse;
 import com.example.watchguide.models.RecommendationsResponse;
+import com.example.watchguide.models.TopAnimeResponse;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -24,5 +25,8 @@ public interface AnimeApi {
 
     @GET("anime/{id}/recommendations")
     Call<RecommendationsResponse> getAnimeRecommendations(@Path("id") int animeId);
+
+    @GET("top/anime")
+    Call<TopAnimeResponse> getTopAnime(@Query("page") int page);
 
 }

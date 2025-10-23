@@ -94,7 +94,7 @@
         <item name="colorCard">#C8E6C9</item>
         <item name="colorTextPrimary">#212121</item>
         <item name="colorTextSecondary">#424242</item>
-        <item name="imagenMain">@drawable/kimetsu_main</item>
+        <item name="imagenMain">@drawable/kimetsu_mainn</item>
         <item name="secondaryImage">@drawable/kimetsu_secondary</item>
         <item name="hatImage">@drawable/kimetsuhair</item>
         <item name="colorBackgroundBlackAndWhite">@color/white</item>

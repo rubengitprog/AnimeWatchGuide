@@ -7,6 +7,12 @@
         />
 
     <item
+        android:id="@+id/nav_ranking"
+        android:title="Top Ranking"
+        android:icon="@android:drawable/btn_star_big_on"
+        />
+
+    <item
         android:id="@+id/nav_settings"
         android:title="Settings"
         android:icon="@drawable/setting"

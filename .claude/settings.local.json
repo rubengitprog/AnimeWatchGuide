@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(git checkout:*)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(xargs basename:*)",
+      "Bash(awk:*)"
     ],
     "deny": [],
     "ask": []

@@ -222,15 +222,47 @@
             android:paddingEnd="4dp"
             android:layout_marginBottom="24dp" />
 
-        <!-- Título de reviews -->
-        <TextView
-            android:layout_width="wrap_content"
+        <!-- Header de reviews con botones -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="User Reviews"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="?attr/colorTextBlackAndWhite"
-            android:layout_marginBottom="12dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="User Reviews"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="?attr/colorTextBlackAndWhite" />
+
+            <!-- Botón para añadir a favoritos -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAddToFavorites"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="Add to favorites"
+                app:icon="@android:drawable/btn_star_big_off"
+                app:iconGravity="textStart"
+                app:iconSize="24dp"
+                app:iconTint="?attr/colorPrimary" />
+
+            <!-- Botón para escribir reseña -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnWriteReview"
+                style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="Write a review"
+                app:icon="@android:drawable/ic_input_add"
+                app:iconGravity="textStart"
+                app:iconSize="28dp" />
+
+        </LinearLayout>
 
         <!-- RecyclerView para reviews -->
         <androidx.recyclerview.widget.RecyclerView

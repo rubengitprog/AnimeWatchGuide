@@ -20,6 +20,7 @@ import com.example.watchguide.models.LibraryEntry;
 import com.example.watchguide.R;
 import com.example.watchguide.models.Anime;
 import com.example.watchguide.ui.fragments.activities.AnimeDetailActivity;
+import com.example.watchguide.utils.TextValidator;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -220,12 +221,24 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
             alertDialog.setOnShowListener(dialogInterface -> {
                 alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
                     String valor = inputRating.getText().toString().trim();
-                    String reviewText = inputReviewText.getText().toString().trim();
+                    String reviewText = inputReviewText.getText().toString();
 
                     // Validación: solo rating obligatorio, review opcional
                     if (valor.isEmpty()) {
                         Toast.makeText(context, "Please enter a rating (1.0 - 10.0)", Toast.LENGTH_SHORT).show();
                         return;
+                    }
+
+                    // Validar review si se proporcionó (no debe ser solo caracteres invisibles)
+                    if (!reviewText.isEmpty() && !TextValidator.isValidText(reviewText)) {
+                        Toast.makeText(context, "Review cannot contain only invisible characters", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Limpiar el texto de la review si es válido
+                    String cleanedReviewText = reviewText.isEmpty() ? "" : TextValidator.cleanText(reviewText);
+                    if (cleanedReviewText == null) {
+                        cleanedReviewText = ""; // Si no es válido, dejarlo vacío
                     }
 
                     try {
@@ -239,7 +252,8 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder> 
 
                             // Guardamos rating Y review
                             String imageUrl = (anime.images != null && anime.images.jpg != null) ? anime.images.jpg.image_url : null;
-                            userLibrary.setRatingWithReview(anime, anime.rating_user, reviewText, imageUrl)
+                            final String finalReviewText = cleanedReviewText;
+                            userLibrary.setRatingWithReview(anime, anime.rating_user, finalReviewText, imageUrl)
                                     .addOnSuccessListener(aVoid -> {
                                         // Guardamos visto
                                         userLibrary.setWatched(anime, true)

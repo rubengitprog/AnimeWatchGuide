@@ -335,6 +335,14 @@ public class MainActivity extends AppCompatActivity {
             if (item.getItemId() == R.id.nav_profile) {
                 openProfile();
             }
+            if (item.getItemId() == R.id.nav_ranking) {
+                Intent intent = new Intent(this, TopRankingActivity.class);
+                intent.putExtra("highlightAnimeId", -1);
+                intent.putExtra("animeRank", 0);
+                startActivity(intent);
+                drawerLayout.closeDrawers();
+                return true;
+            }
             if (item.getItemId() == R.id.nav_Info) {
                 new AlertDialog.Builder(this)
                         .setTitle("About")

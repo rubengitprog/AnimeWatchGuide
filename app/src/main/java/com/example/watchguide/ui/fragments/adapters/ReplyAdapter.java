@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.watchguide.R;
 import com.example.watchguide.models.Reply;
+import com.example.watchguide.utils.TextValidator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -30,6 +31,7 @@ public class ReplyAdapter extends RecyclerView.Adapter<ReplyAdapter.ViewHolder> 
     private final List<Reply> replyList;
     private final Context context;
     private final String currentUserId;
+    private boolean isAdmin = false;
 
     public ReplyAdapter(List<Reply> replyList, Context context) {
         this.replyList = replyList;
@@ -37,6 +39,27 @@ public class ReplyAdapter extends RecyclerView.Adapter<ReplyAdapter.ViewHolder> 
         this.currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null
             ? FirebaseAuth.getInstance().getCurrentUser().getUid()
             : "";
+
+        // Verificar si el usuario actual es admin
+        checkIfAdmin();
+    }
+
+    private void checkIfAdmin() {
+        if (currentUserId.isEmpty()) {
+            return;
+        }
+
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(currentUserId)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists() && doc.contains("role")) {
+                        String role = doc.getString("role");
+                        isAdmin = "admin".equals(role);
+                        notifyDataSetChanged(); // Actualizar la vista cuando se confirme el rol
+                    }
+                });
     }
 
     @NonNull
@@ -91,8 +114,9 @@ public class ReplyAdapter extends RecyclerView.Adapter<ReplyAdapter.ViewHolder> 
             holder.buttonDislikeReply.setAlpha(0.5f);
         }
 
-        // Mostrar botón de eliminar solo si es el propietario
-        if (reply.userId.equals(currentUserId)) {
+        // Mostrar botón de eliminar si es el propietario O si es admin
+        boolean canDelete = reply.userId.equals(currentUserId) || isAdmin;
+        if (canDelete) {
             holder.buttonDeleteReply.setVisibility(View.VISIBLE);
             holder.buttonDeleteReply.setOnClickListener(v -> showDeleteDialog(reply, position));
         } else {
@@ -209,12 +233,16 @@ public class ReplyAdapter extends RecyclerView.Adapter<ReplyAdapter.ViewHolder> 
                 .setPositiveButton("Submit Report", (dialog, which) -> {
                     int selectedPosition = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
                     String selectedReason = reasons[selectedPosition].toLowerCase().replace(" ", "_");
-                    String description = inputDescription.getText().toString().trim();
+                    String description = inputDescription.getText().toString();
 
-                    if (description.isEmpty()) {
-                        Toast.makeText(context, "Please provide a description", Toast.LENGTH_SHORT).show();
+                    // Validar que la descripción no esté vacía y no contenga solo caracteres invisibles
+                    if (!TextValidator.isValidText(description)) {
+                        Toast.makeText(context, "Please provide a valid description", Toast.LENGTH_SHORT).show();
                         return;
                     }
+
+                    // Limpiar el texto
+                    String cleanedDescription = TextValidator.cleanText(description);
 
                     // Obtener username del usuario que reporta
                     FirebaseFirestore.getInstance()
@@ -232,7 +260,7 @@ public class ReplyAdapter extends RecyclerView.Adapter<ReplyAdapter.ViewHolder> 
                                 report.put("contentType", "reply");
                                 report.put("contentId", reply.replyId);
                                 report.put("reason", selectedReason);
-                                report.put("description", description);
+                                report.put("description", cleanedDescription);
                                 report.put("timestamp", System.currentTimeMillis());
                                 report.put("status", "pending");
 

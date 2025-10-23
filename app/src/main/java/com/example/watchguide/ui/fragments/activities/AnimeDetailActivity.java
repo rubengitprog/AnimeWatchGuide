@@ -1,5 +1,6 @@
 package com.example.watchguide.ui.fragments.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -22,6 +23,9 @@ import com.example.watchguide.models.Review;
 
 import com.example.watchguide.ui.fragments.adapters.RecommendationAdapter;
 import com.example.watchguide.ui.fragments.adapters.ReviewAdapter;
+import com.example.watchguide.data.api.repository.FirestoreUserLibrary;
+import com.google.android.material.button.MaterialButton;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -54,6 +58,12 @@ public class AnimeDetailActivity extends AppCompatActivity {
     private RecommendationAdapter recommendationAdapter;
     private List<RecommendationEntry> recommendationList = new ArrayList<>();
 
+    private MaterialButton btnWriteReview;
+    private MaterialButton btnAddToFavorites;
+    private FirestoreUserLibrary userLibrary;
+    private Anime currentAnime;
+    private boolean isFavorite = false;
+
     private int animeId;
     private String animeTitle;
     private String animeSynopsis;
@@ -82,6 +92,14 @@ public class AnimeDetailActivity extends AppCompatActivity {
         animeAverageRatingDetail = findViewById(R.id.animeAverageRatingDetail);
         recyclerViewReviews = findViewById(R.id.recyclerViewReviews);
         textNoReviews = findViewById(R.id.textNoReviews);
+        btnWriteReview = findViewById(R.id.btnWriteReview);
+        btnAddToFavorites = findViewById(R.id.btnAddToFavorites);
+
+        // Inicializar FirestoreUserLibrary
+        String uid = FirebaseAuth.getInstance().getCurrentUser() != null
+            ? FirebaseAuth.getInstance().getCurrentUser().getUid()
+            : "";
+        userLibrary = new FirestoreUserLibrary(uid);
 
         // Nuevas vistas
         animeTypeDetail = findViewById(R.id.animeTypeDetail);
@@ -148,6 +166,15 @@ public class AnimeDetailActivity extends AppCompatActivity {
         if (rank > 0) {
             animeRankDetail.setText("🏆 Rank #" + rank);
             animeRankDetail.setVisibility(View.VISIBLE);
+
+            // Hacer clicable el ranking para ver el top 100
+            final int finalRank = rank;
+            animeRankDetail.setOnClickListener(v -> {
+                Intent intent = new Intent(AnimeDetailActivity.this, TopRankingActivity.class);
+                intent.putExtra("highlightAnimeId", animeId);
+                intent.putExtra("animeRank", finalRank);
+                startActivity(intent);
+            });
         } else {
             animeRankDetail.setVisibility(View.GONE);
         }
@@ -218,10 +245,57 @@ public class AnimeDetailActivity extends AppCompatActivity {
         recommendationAdapter = new RecommendationAdapter(recommendationList, this);
         recyclerViewRecommendations.setAdapter(recommendationAdapter);
 
+        // Crear objeto Anime básico con los datos del Intent
+        createBasicAnimeFromIntent();
+
+        // Configurar botones
+        setupButtons();
+
         // Cargar datos
         loadAverageRating();
         loadReviews();
         loadRecommendations();
+    }
+
+    private void createBasicAnimeFromIntent() {
+        // Crear un objeto Anime básico con los datos disponibles del Intent
+        currentAnime = new Anime();
+        currentAnime.mal_id = animeId;
+        currentAnime.title = animeTitle;
+        currentAnime.synopsis = animeSynopsis;
+
+        // Crear estructura de imágenes si tenemos la URL
+        if (animeImageUrl != null && !animeImageUrl.isEmpty()) {
+            currentAnime.images = new Anime.Images();
+            currentAnime.images.jpg = new Anime.Images.JPG();
+            currentAnime.images.jpg.image_url = animeImageUrl;
+        }
+
+        // Añadir otros datos si existen
+        String type = getIntent().getStringExtra("animeType");
+        if (type != null) {
+            currentAnime.type = type;
+        }
+
+        int episodes = getIntent().getIntExtra("animeEpisodes", 0);
+        if (episodes > 0) {
+            currentAnime.episodes = episodes;
+        }
+
+        String status = getIntent().getStringExtra("animeStatus");
+        if (status != null) {
+            currentAnime.status = status;
+        }
+
+        double score = getIntent().getDoubleExtra("animeScore", 0.0);
+        if (score > 0) {
+            currentAnime.score = score;
+        }
+
+        int rank = getIntent().getIntExtra("animeRank", 0);
+        if (rank > 0) {
+            currentAnime.rank = rank;
+        }
     }
 
     private void loadAverageRating() {
@@ -351,6 +425,15 @@ public class AnimeDetailActivity extends AppCompatActivity {
                         if (anime.rank > 0) {
                             animeRankDetail.setText("🏆 Rank #" + anime.rank);
                             animeRankDetail.setVisibility(View.VISIBLE);
+
+                            // Hacer clicable el ranking para ver el top
+                            final int finalRank = anime.rank;
+                            animeRankDetail.setOnClickListener(v -> {
+                                Intent intent = new Intent(AnimeDetailActivity.this, TopRankingActivity.class);
+                                intent.putExtra("highlightAnimeId", animeId);
+                                intent.putExtra("animeRank", finalRank);
+                                startActivity(intent);
+                            });
                         }
 
                         // Géneros
@@ -407,6 +490,12 @@ public class AnimeDetailActivity extends AppCompatActivity {
                             animeRatingDetail.setText("Rating: " + anime.rating);
                             animeRatingDetail.setVisibility(View.VISIBLE);
                         }
+
+                        // Actualizar el anime completo con los datos de la API
+                        currentAnime = anime;
+                        // No es necesario volver a llamar setupButtons() porque ya se llamó en onCreate()
+                        // Solo actualizar el estado de favoritos por si acaso
+                        checkFavoriteStatus();
                     });
                 } else {
                     runOnUiThread(() -> {
@@ -475,5 +564,144 @@ public class AnimeDetailActivity extends AppCompatActivity {
                 // No mostrar error al usuario, las recomendaciones son opcionales
             }
         });
+    }
+
+    private void setupButtons() {
+        // Botón para escribir reseña
+        btnWriteReview.setOnClickListener(v -> showWriteReviewDialog());
+
+        // Botón de favoritos
+        btnAddToFavorites.setOnClickListener(v -> toggleFavorite());
+
+        // Verificar estado inicial de favoritos
+        checkFavoriteStatus();
+    }
+
+    private void showWriteReviewDialog() {
+        if (currentAnime == null) {
+            Toast.makeText(this, "Please wait while loading anime details", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_anime, null);
+        android.widget.EditText inputRating = dialogView.findViewById(R.id.inputRating);
+        android.widget.EditText inputReviewText = dialogView.findViewById(R.id.inputReviewText);
+
+        androidx.appcompat.app.AlertDialog alertDialog = new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle(currentAnime.title)
+                .setView(dialogView)
+                .setPositiveButton("Save", null)
+                .setNegativeButton("Cancel", null)
+                .create();
+
+        alertDialog.setOnShowListener(dialogInterface -> {
+            alertDialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
+                String valor = inputRating.getText().toString().trim();
+                String reviewText = inputReviewText.getText().toString();
+
+                // Validación: solo rating obligatorio
+                if (valor.isEmpty()) {
+                    Toast.makeText(this, "Please enter a rating (1.0 - 10.0)", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Validar review si se proporcionó
+                if (!reviewText.isEmpty() && !com.example.watchguide.utils.TextValidator.isValidText(reviewText)) {
+                    Toast.makeText(this, "Review cannot contain only invisible characters", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Limpiar el texto de la review
+                String cleanedReviewText = reviewText.isEmpty() ? "" : com.example.watchguide.utils.TextValidator.cleanText(reviewText);
+                if (cleanedReviewText == null) {
+                    cleanedReviewText = "";
+                }
+
+                try {
+                    float rating = Float.parseFloat(valor);
+                    rating = Math.round(rating * 10) / 10.0f;
+
+                    if (rating >= 1.0f && rating <= 10.0f) {
+                        String imageUrl = (currentAnime.images != null && currentAnime.images.jpg != null)
+                            ? currentAnime.images.jpg.image_url : null;
+                        final String finalReviewText = cleanedReviewText;
+
+                        userLibrary.setRatingWithReview(currentAnime, rating, finalReviewText, imageUrl)
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(this, "Rating and review saved!", Toast.LENGTH_SHORT).show();
+                                    alertDialog.dismiss();
+                                    // Recargar reviews
+                                    loadReviews();
+                                    loadAverageRating();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(this, "Error saving: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                });
+                    } else {
+                        Toast.makeText(this, "Rating must be between 1.0 and 10.0", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (NumberFormatException e) {
+                    Toast.makeText(this, "Please enter a valid number", Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+
+        alertDialog.show();
+    }
+
+    private void toggleFavorite() {
+        if (currentAnime == null) {
+            Toast.makeText(this, "Please wait while loading anime details", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        isFavorite = !isFavorite;
+        String imageUrl = (currentAnime.images != null && currentAnime.images.jpg != null)
+            ? currentAnime.images.jpg.image_url : null;
+
+        userLibrary.setFavorite(currentAnime, isFavorite)
+                .addOnSuccessListener(aVoid -> {
+                    updateFavoriteButton();
+                    String message = isFavorite ? "Added to favorites" : "Removed from favorites";
+                    Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    // Revertir el estado si falla
+                    isFavorite = !isFavorite;
+                    Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void checkFavoriteStatus() {
+        if (currentAnime == null) {
+            return;
+        }
+
+        String uid = FirebaseAuth.getInstance().getCurrentUser() != null
+            ? FirebaseAuth.getInstance().getCurrentUser().getUid()
+            : "";
+
+        if (uid.isEmpty()) {
+            return;
+        }
+
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(uid)
+                .collection("favorites")
+                .document(String.valueOf(animeId))
+                .get()
+                .addOnSuccessListener(doc -> {
+                    isFavorite = doc.exists();
+                    updateFavoriteButton();
+                });
+    }
+
+    private void updateFavoriteButton() {
+        if (isFavorite) {
+            btnAddToFavorites.setIcon(getDrawable(android.R.drawable.btn_star_big_on));
+        } else {
+            btnAddToFavorites.setIcon(getDrawable(android.R.drawable.btn_star_big_off));
+        }
     }
 }

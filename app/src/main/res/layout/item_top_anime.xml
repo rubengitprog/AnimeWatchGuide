@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardElevation="4dp"
+    app:cardCornerRadius="8dp"
+    app:cardBackgroundColor="?attr/colorBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical">
+
+        <!-- Ranking position -->
+        <TextView
+            android:id="@+id/rankPosition"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:text="#1"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorTextBlackAndWhite"
+            android:gravity="center" />
+
+        <!-- Anime image -->
+        <ImageView
+            android:id="@+id/topAnimeImage"
+            android:layout_width="60dp"
+            android:layout_height="85dp"
+            android:scaleType="centerCrop"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="12dp"
+            android:contentDescription="Anime image" />
+
+        <!-- Info container -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <!-- Title -->
+            <TextView
+                android:id="@+id/topAnimeTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Anime Title"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="?attr/colorTextBlackAndWhite"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+            <!-- Score -->
+            <TextView
+                android:id="@+id/topAnimeScore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⭐ 8.5"
+                android:textSize="14sp"
+                android:textColor="?attr/colorTextBlackAndWhite"
+                android:layout_marginTop="4dp" />
+
+            <!-- Type and Episodes -->
+            <TextView
+                android:id="@+id/topAnimeInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TV • 24 episodes"
+                android:textSize="12sp"
+                android:textColor="?attr/colorTextBlackAndWhite"
+                android:alpha="0.7"
+                android:layout_marginTop="2dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
